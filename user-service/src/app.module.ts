@@ -1,0 +1,22 @@
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserService } from './user/application/user.service';
+import { UserController } from './user/presentation/user.controller';
+import { User } from './user/domain/entities/user.entity';
+import { UserRepository } from './user/infraestructure/repository/user.repository';
+import { TypeOrmConfig } from './user/infraestructure/configurations/typeorm.config';  
+import { ConfigModule } from '@nestjs/config';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true, 
+    }),
+    TypeOrmModule.forRoot(TypeOrmConfig.getOrmConfig()),
+    TypeOrmModule.forFeature([User]),
+  ],
+  controllers: [UserController],
+  providers: [UserService, UserRepository],
+  exports: [UserRepository],
+})
+export class AppModule {}
