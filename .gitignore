@@ -74,3 +74,35 @@ coverage/
 *.bak
 *.old
 *.orig
+
+# Visual Studio
+.vs/
+
+# Visual Studio Code
+.vscode/
+
+# Build results
+bin/
+obj/
+
+# NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+project.assets.json
+project.nuget.cache
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+
+# Node / NestJS
+node_modules/
+dist/
+.env
+.env.*

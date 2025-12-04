@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { log } from 'console';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,8 +17,9 @@ async function bootstrap() {
 
     // Swagger Config
   const config = new DocumentBuilder()
-    .setTitle('API Documentation')
-    .setDescription('Documentación de la API con Swagger')
+    .setTitle('UserServices.API')
+    .setBasePath('http://localhost:${port}/api')
+    .setDescription('Documentación de la API con Swagger del microservicio de user')
     .setVersion('1.0')
     .build();
 
@@ -25,5 +27,10 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.PORT ?? 3000);
+
+  const port = process.env.PORT ?? 3000;
+  const logger = new Logger('Bootstrap');
+  logger.log(`La aplicación está corriendo en: http://localhost:${port}`);
+  logger.log(`Swagger: http://localhost:${port}/api`);
 }
 bootstrap();

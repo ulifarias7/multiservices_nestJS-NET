@@ -6,7 +6,7 @@ namespace Document.API.Services
 {
     public interface IFileServices
     {
-        Task<string> CreateBucketAsync(string bucket);
+        Task<ResponsesObjectJson> CreateBucketAsync(string bucket);
         Task<ResponsesObjectJson> CreateObjectAsync(CreateObjectDto model);
         Task<ResponsesObjectJson> GeBucketAsync(string bucket);
         Task<ResponsesObjectJson> GetObjectAsync(string bucket, string objectName);

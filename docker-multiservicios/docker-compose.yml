@@ -1,10 +1,11 @@
+version: "3.9"
 
 services:
-
+  #servicio documento (.net)
   document-service:
     container_name: document-service-multiservicios
     build:
-      context: ./document-service/src/Document.API
+      context: ../document-service/src/Document.API
       dockerfile: Dockerfile
     image: document-api:latest
     ports:
@@ -15,7 +16,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
     networks:
-      - document-network
+      - multiservices-network
 
   minio:
     image: minio/minio:latest
@@ -30,7 +31,23 @@ services:
     volumes:
       - minio-data:/data
     networks:
-      - document-network
+      - multiservices-network
+
+  #servicio de usuario(nest)
+  user-service:
+    container_name: user-service-multiservicios
+    build:
+      context: ../user-service
+      dockerfile: Dockerfile
+    image: user-api:latest
+    ports:
+      - "3000:3001"
+    depends_on:
+      - postgres
+    environment:
+      BDATABASE_URL: "postgresql://admin:admin@postgres:5432/userdb"
+    networks:
+      - multiservices-network
 
   postgres:
     image: postgres:16
@@ -38,13 +55,13 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: documentdb
+      POSTGRES_DB: postgres
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - document-network
+      - multiservices-network
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -57,10 +74,10 @@ services:
     depends_on:
       - postgres
     networks:
-      - document-network
+      - multiservices-network
 
 networks:
-  document-network:
+  multiservices-network:
     driver: bridge
 
 volumes:

@@ -56,6 +56,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//Log URL del swagger
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+var httpPort = builder.Configuration["Swagger:HTTP-PORT"];
+var httpsPort = builder.Configuration["Swagger:HTTPS-PORT"];
+var port = httpPort ?? httpsPort;
+logger.LogInformation("Swagger disponible en: http://localhost:{port}/swagger", port);
+
 app.UseHttpsRedirection();
 app.MapControllers();
 app.UseRouting();

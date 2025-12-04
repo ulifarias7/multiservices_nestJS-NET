@@ -20,7 +20,7 @@ namespace Document.API.Services.Implementations
             _fileRepository = fileRepository;
         }
 
-        public async Task<string> CreateBucketAsync(string objectKey)
+        public async Task<ResponsesObjectJson> CreateBucketAsync(string objectKey)
         {
             bool exists = await _minio.BucketExistsAsync(new BucketExistsArgs().WithBucket(objectKey));
 
@@ -30,10 +30,20 @@ namespace Document.API.Services.Implementations
 
                 await _fileRepository.AddBucket(new BucketEntity { Name = objectKey });
 
-                return $"Bucket '{objectKey}' creado correctamente.";
+                return new ResponsesObjectJson()
+                {
+                    Code = 200,
+                    Message = $"Bucket '{objectKey}' creado correctamente.",
+                    Response = objectKey
+                };
             }
 
-            return $"Bucket '{objectKey}' ya existe.";
+            return new ResponsesObjectJson()
+            {
+                Code = 400,
+                Message = $"Bucket '{objectKey}' ya existe.",
+                Response = objectKey
+            };
         }
 
         public async Task<ResponsesObjectJson> CreateObjectAsync(CreateObjectDto model)
@@ -65,7 +75,7 @@ namespace Document.API.Services.Implementations
 
             var document = new DocumentEntity
             {
-                bucketId = bucketDb.Id,
+                BucketId = bucketDb.Id,
                 Url = objectName,
                 CreatAt = DateTime.UtcNow
             };

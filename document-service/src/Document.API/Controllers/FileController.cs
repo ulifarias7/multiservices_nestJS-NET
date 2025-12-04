@@ -17,7 +17,7 @@ namespace Document.API.Controllers
         }
 
         [HttpPost("create-bucket")]
-        public async Task<ActionResult<string>> CreateBucket([FromQuery] string bucket)
+        public async Task<ActionResult<ResponsesObjectJson>> CreateBucket([FromQuery] string bucket)
         {
             var result = await _fileServices.CreateBucketAsync(bucket);
             return Ok(result);
