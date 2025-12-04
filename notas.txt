@@ -1,0 +1,6 @@
+COSAS QUE FALTAN :
+
+# dejar las bases de datos iguales con minusculas 
+# acomodar codigo en los servicios con modelos , un tipo de respuesta generico y agregarlos
+# agregarles mas buenas practicas 
+# documentar los servicios
