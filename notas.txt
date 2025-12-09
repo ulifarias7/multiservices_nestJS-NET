@@ -4,3 +4,181 @@ COSAS QUE FALTAN :
 # acomodar codigo en los servicios con modelos , un tipo de respuesta generico y agregarlos
 # agregarles mas buenas practicas 
 # documentar los servicios
+
+
+//////////////////////////KEYCLOACKK
+✅ Arquitectura correcta cuando Keycloak es tu Identity Provider
+1. Auth-Service → crea usuarios SOLO en Keycloak
+
+Keycloak es la fuente de verdad en cuanto a identidad.
+Los usuarios se crean, habilitan, deshabilitan, resetean contraseña SOLO en Keycloak.
+
+Tu Auth-Service debería tener endpoints como:
+
+POST /auth/register
+POST /auth/login
+POST /auth/refresh
+POST /auth/logout
+POST /auth/verify-email
+POST /auth/forgot-password
+
+Y cada uno llama a la API Admin de Keycloak.
+
+✅ 2. Cuando el usuario se crea en Keycloak → se replica al User-Service
+
+Tenés 2 opciones:
+
+🔥 Opción A (la mejor): Webhook/Evento desde Auth-Service
+
+POST /auth/register recibe la info del usuario.
+
+Auth-Service le pega a Keycloak → usuario creado.
+
+Auth-Service llama a User-Service:
+
+POST /user
+{
+   "keycloakId": "uuid-de-keycloak",
+   "email": "...",
+   "firstname": "...",
+   "lastname": "...",
+   ...
+}
+
+
+User-Service guarda solo los datos que Keycloak NO maneja.
+
+Ventajas:
+Vos controlás la transacción.
+Tenés 0 acoplamiento entre servicios.
+No dependés de plugins de Keycloak.
+
+auth-services-dev = reino 
+auth.service@yopmail.com = username
+admin = contraseña
+http://localhost:8082/realms/auth-service/account  (link para usuario)
+
+
+Keycloak:
+estoy con la implementacion de keycloack y estoy viendo una data piola que cuando generas el reino para tu app y le 
+creas un cliente para la autenticacion, tokenizacion etc podes poner tambein el tipo de cliente que queres que sea .
+
+🔵 Client Type: Public
+
+-No tiene secret client
+-Para frontends (Angular, React, mobile)
+
+🔵 Client Type: Confidential
+
+-Tiene secret
+-Solo servidores backend
+
+🔵 Client Type: Bearer-Only
+
+-NO pide tokens
+-Solo valida tokens enviados por un API Gateway / backend
+-Nunca inicia sesión
+
+tambien me paso con los flujos de trabajo por lo general siempre usamos el flujo de trabajo estandar pero creo que vi que existen otros tipos 
+
+Flujo	Para qué sirve
+Standard Flow = Login normal (redirect a Keycloak)
+Direct Access Grants = Login con usuario/contraseña desde Postman (sin redirect)
+Service Accounts = Autenticación máquina a máquina
+
+
+osea que keycloack trabaja asi 
+1- Sí, es en tu realm auth-services-dev
+2- El “cliente” es la app que querés registrar
+3- El ID del cliente es lo que tu backend/frontend va a usar para pedir tokens
+4- OpenID Connect es el protocolo de autenticación
+5- Standard Flow debe estar activado para apps con login
+6- Login Settings controla redirect URIs y CORS
+
+tambien lo  que se puede hacer es optimizar la imagen de keyclaock que estes usando en tu contenedor 
+podes generar un archivo que se llame  Containerfile (utiliza la misma sintaxis que un dockerfile)
+
+Archivo que recomienda la docu : 
+
+FROM quay.io/keycloak/keycloak:latest AS builder
+
+# Enable health and metrics support
+ENV KC_HEALTH_ENABLED=true
+ENV KC_METRICS_ENABLED=true
+
+# Configure a database vendor
+ENV KC_DB=postgres
+
+WORKDIR /opt/keycloak
+# for demonstration purposes only, please make sure to use proper certificates in production instead
+RUN keytool -genkeypair -storepass password -storetype PKCS12 -keyalg RSA -keysize 2048 -dname "CN=server" -alias server -ext "SAN:c=DNS:localhost,IP:127.0.0.1" -keystore conf/server.keystore
+RUN /opt/keycloak/bin/kc.sh build
+
+FROM quay.io/keycloak/keycloak:latest
+COPY --from=builder /opt/keycloak/ /opt/keycloak/
+
+# change these values to point to a running postgres instance
+ENV KC_DB=postgres
+ENV KC_DB_URL=<DBURL>
+ENV KC_DB_USERNAME=<DBUSERNAME>
+ENV KC_DB_PASSWORD=<DBPASSWORD>
+ENV KC_HOSTNAME=localhost
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+
+puedes tener script personalizados para el trabajo especifico que necesites , por ejemplo la importacion de un reino al iniciar el contenedor
+
+
+el funcionamiento correcto de keycloack es :
+
+Con Keycloak bien implementado, tu backend NO debería:
+
+❌ manejar contraseñas
+❌ crear usuarios manuales desde tu base propia
+❌ emitir JWTs
+❌ validar credenciales (email/contraseña)
+❌ almacenar usuarios en tu base
+
+Todo eso lo hace Keycloak.
+
+Tu API solo debe:
+
+✔️ Validar el token (middleware JWT en .NET)
+✔️ Aplicar roles/claims del token
+✔️ Usar el userId que viene en el token
+
+Endpoint que deberiamos usar y desde donde generar la solicitud :
+POST /realms/{realm}/protocol/openid-connect/token (login = frontend)
+POST /realms/{realm}/protocol/openid-connect/token (refresh_token = frontend)
+(grant_type=refresh_token)
+
+AdminAPI:
+GET  /admin/realms/{realm}/users
+POST /admin/realms/{realm}/users
+GET  /admin/realms/{realm}/users/{id}
+PUT  /admin/realms/{realm}/users/{id}
+DELETE /admin/realms/{realm}/users/{id}
+
+login UI
+http://localhost:8082/realms/{realm}/protocol/openid-connect/auth
+
+validar certificados
+/realms/{realm}/protocol/openid-connect/certs
+
+recordatorio de lo unico que deberia hacer keycloack en la app:
+La API solo usa Keycloak para administrar usuarios
+
+Cuando corresponde(API):
+-Crear usuario
+-Buscar usuario
+-Cambiar email
+-Resetear contraseña
+-Deshabilitar usuario
+Eso es usando el Admin REST API, pero con un token de administrador, no de usuario.
+
+cuando corresponde(frontend):
+-Login
+-Logout
+-Refresh token
+-Obtener token
+-Actualizar perfil del usuario autenticado
+-Cambiar contraseña desde UI

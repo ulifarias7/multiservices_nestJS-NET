@@ -16,7 +16,7 @@ export class UserRepository {
    return this.repo.save(newUser);
   }
 
-  async findByEmail(email: string): Promise<User | null> {
+  async findByEmail(email: string): Promise<User | null> {  
     return this.repo.findOne({ where: { email } });
   }
 }

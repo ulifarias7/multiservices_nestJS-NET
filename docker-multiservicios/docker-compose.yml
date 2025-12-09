@@ -1,7 +1,5 @@
-version: "3.9"
-
 services:
-  #servicio documento (.net)
+  # servicio documento (.net)
   document-service:
     container_name: document-service-multiservicios
     build:
@@ -18,12 +16,13 @@ services:
     networks:
       - multiservices-network
 
+  # minio storage
   minio:
     image: minio/minio:latest
     container_name: minio-multiservicios
     ports:
-      - "9000:9000"  # API #recursos
-      - "9001:9001"  # Consola de administración admin
+      - "9000:9000"
+      - "9001:9001"
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -33,7 +32,7 @@ services:
     networks:
       - multiservices-network
 
-  #servicio de usuario(nest)
+  # servicio user (Nest)
   user-service:
     container_name: user-service-multiservicios
     build:
@@ -49,13 +48,37 @@ services:
     networks:
       - multiservices-network
 
+  # keycloak
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak-multiservicios
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+
+      KC_DB: postgres
+      KC_DB_USERNAME: admin
+      KC_DB_PASSWORD: admin
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_DATABASE: keycloakdb
+    ports:
+      - "8082:8080"
+    depends_on:
+      - postgres
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    networks:
+      - multiservices-network
+
+  # motor postgres
   postgres:
     image: postgres:16
     container_name: postgres-multiservicios
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: postgres
+      POSTGRES_DB: keycloakdb
     ports:
       - "5432:5432"
     volumes:
@@ -63,6 +86,7 @@ services:
     networks:
       - multiservices-network
 
+  # PGAdmin
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin-multiservicios
@@ -83,3 +107,4 @@ networks:
 volumes:
   minio-data:
   pgdata:
+  keycloak_data:
