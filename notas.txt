@@ -156,6 +156,7 @@ GET  /admin/realms/{realm}/users
 POST /admin/realms/{realm}/users
 GET  /admin/realms/{realm}/users/{id}
 PUT  /admin/realms/{realm}/users/{id}
+PUT cambiar la contraseña
 DELETE /admin/realms/{realm}/users/{id}
 
 login UI
@@ -182,3 +183,57 @@ cuando corresponde(frontend):
 -Obtener token
 -Actualizar perfil del usuario autenticado
 -Cambiar contraseña desde UI
+
+que es keycloack? 
+es un identity provider y authorization server esto quiere decir que manneja :
+-Maneja autenticación (login, logout, sesiones, tokens)
+-Maneja autorización (roles, permisos)
+-Maneja identidad de usuarios (perfiles, emails, contraseñas)
+-Emite tokens JWT para que tus APIs y frontends sepan quién es el usuario.
+
+es el provedor de login 
+
+por que keycloack trae  un usuario admin por defecto ?
+para administrar el servidor de keyclaock pero no la configuracion de tu app
+-crea reino y borra 
+-ver logs
+-cambiar configuracion globales 
+-crear usuario dentro de cualquier realm 
+
+el mismo usario sabe de cuando creas las variables de entorno al crear el contenedor .
+
+Que es un realm de keycloack ?
+es un entorno de configiracion que el usuario admin habilita para poder configurar 
+los requisistos que necesites para tu aplicacion .
+
+sirve para :
+Los usuarios de esa aplicación
+Los roles
+Los clients (apps que se autentican con Keycloak)
+Políticas
+Flujos de login
+Configuración del token
+Proveedores de identidad externos
+
+es necesario creartu reino para no mezclar tus usuarios con el admin .
+
+Que es un cliente de keycloack?
+un cliente es una aplicaicion que usa keycloack para autenticarse .. eciste 3 tipos de authenticacion 
+publicas = frontend
+cli = admin-cli (VIENE POR DEFECTO )
+confidencial = api (valida token)
+
+el admin-cli = se usa para la administracion interna 
+
+se puede trabajar de dos formas para poder pegarle desde tu app a keycloack 
+1-usar el admin-cli (tiene los permisos administrativos)
+2-usar un cliente creado por vos (en el reino master) y otorgarle permisos de admin , ese rol le va a dar al reino el control administrativo
+Le asignás:
+-realm-management / manage-users
+-realm-management / realm-admin
+
+osea en resumen es asi 
+1-el usuario admin que viene por defecto es para adminitrar todo keyclaock.
+2-el reino master es un "panel de control" global que administre todo Keycloak.crea reinos , crea usuario admin y clientes globales.
+3-el reino que vos cree es tu app ,es donde va a estar todo lo de tu app (usuarios,empresas etc).
+4-el cliente que vos cree es para la authenticacion de tu app por eso esta dentro de tu reino (la autenticacion puede ser publica, confidencial o cli)

@@ -1,6 +1,9 @@
 using Auth.API.Services;
 using Auth.API.Services.Implementation;
+using Flurl;
+using Keycloak.Net;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +14,19 @@ builder.Services.AddOpenApi();
 
 //controllers 
 builder.Services.AddControllers();
+
+// Keycloak Client
+builder.Services.AddSingleton(provider =>
+{
+    var config = provider.GetRequiredService<IConfiguration>();
+    var url = config["Keycloak:ServerUrl"];
+    var adminUser = config["Keycloak:AdminUsername"];
+    var adminPass = config["Keycloak:AdminPassword"];
+    var adminRealm = "master";
+
+    return new KeycloakClient(url, adminUser, adminPass, new KeycloakOptions(authenticationRealm: adminRealm));
+});
+
 
 //services 
 builder.Services.AddScoped<IKeycloackServices, KeycloackServices>();

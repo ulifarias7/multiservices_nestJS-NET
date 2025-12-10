@@ -1,37 +1,41 @@
-﻿using System.Text.Json.Serialization;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Serialization;
 
 namespace Auth.API.Models
 {
     public class CreateUserKeycloacDto
     {
-        [JsonPropertyName("firstame")]
+        [FromForm(Name = "username")]
+        public string? UserName { get; set; }
+
+        [FromForm(Name ="firstname")]
         public string? FirstName { get; set; }
 
-        [JsonPropertyName("lastname")]
+        [FromForm(Name = "lastname")]
         public string? LastName { get; set; }
 
-        [JsonPropertyName("email")]
+        [FromForm(Name = "email")]
         public string? Email { get; set; }
 
-        [JsonPropertyName("emailVerified")]
+        [FromForm(Name = "emailVerified")]
         public bool? EmailVerified { get; set; }
 
-        [JsonPropertyName("enabled")]
+        [FromForm(Name = "enabled")]
         public bool? Enabled { get; set; }
 
-        [JsonPropertyName("credentials")]
-        public credentialDto Credentials { get; set; }
+        [FromForm(Name = "credentials")]
+        public CredentialDto CredentialDto { get; set; }
 
     }
-    public class credentialDto
+    public class CredentialDto
     {
-        [JsonPropertyName("type")]
+        [FromForm(Name = "type")]
         public string? Type { get; set; } = "password";
 
-        [JsonPropertyName("value")]
-        public string? Value { get; set; }
+        [FromForm(Name = "value")]
+        public string Value { get; set; }
 
-        [JsonPropertyName("tempory")]
-        public bool? Tempory { get; set; } = false;
+        [FromForm(Name = "temporary")]
+        public bool? Temporary { get; set; } = false;
     }
 }
