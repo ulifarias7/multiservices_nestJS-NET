@@ -1,12 +1,10 @@
+using Auth.API.MappingConfig;
+using Auth.API.Middleware;
 using Auth.API.Services;
 using Auth.API.Services.Implementation;
-using Flurl;
 using Keycloak.Net;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -27,9 +25,14 @@ builder.Services.AddSingleton(provider =>
     return new KeycloakClient(url, adminUser, adminPass, new KeycloakOptions(authenticationRealm: adminRealm));
 });
 
-
 //services 
 builder.Services.AddScoped<IKeycloackServices, KeycloackServices>();
+
+//automapper
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<MapperProfile>();
+});
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -42,7 +45,7 @@ if (app.Environment.IsDevelopment())
 {
     //app.MapOpenApi();
     app.UseSwagger();
-    app.UseSwaggerUI(); 
+    app.UseSwaggerUI();
 }
 
 //Log URL del swagger
@@ -52,6 +55,7 @@ var httpsPort = builder.Configuration["Swagger:HTTPS-PORT"];
 var port = httpPort ?? httpsPort;
 logger.LogInformation("Swagger disponible en: http://localhost:{port}/swagger", port);
 
+app.UseMiddleware<KeycloakExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.MapControllers();
 app.UseRouting();

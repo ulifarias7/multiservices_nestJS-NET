@@ -1,0 +1,15 @@
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace Auth.API.Models
+{
+    public class UpdateUserKeycloakDto
+    {
+        public string Id { get; set; }
+        public string? UserName { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Email { get; set; }
+        public bool? EmailVerified { get; set; }
+        public bool? Enabled { get; set; }
+    }
+}
