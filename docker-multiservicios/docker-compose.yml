@@ -1,20 +1,20 @@
 services:
   # servicio documento (.net)
-  # document-service:
-  #   container_name: document-service-multiservicios
-  #   build:
-  #     context: ../document-service/src/Document.API
-  #     dockerfile: Dockerfile
-  #   image: document-api:latest
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     - minio
-  #     - postgres
-  #   environment:
-  #     ASPNETCORE_ENVIRONMENT: Development
-  #   networks:
-  #     - multiservices-network
+  document-service:
+    container_name: document-service-multiservicios
+    build:
+      context: ../document-service/src/Document.API
+      dockerfile: Dockerfile
+    image: document-api:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - minio
+      - postgres
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    networks:
+      - multiservices-network
 
   # minio storage
   minio:
@@ -57,6 +57,9 @@ services:
     image: auth-api:latest
     ports:
       - "8083:8083"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8083  
     networks:
       - multiservices-network
 
