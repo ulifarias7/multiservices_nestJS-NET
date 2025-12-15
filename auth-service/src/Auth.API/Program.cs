@@ -28,6 +28,9 @@ builder.Services.AddSingleton(provider =>
 //services 
 builder.Services.AddScoped<IKeycloackServices, KeycloackServices>();
 
+//wrapper
+builder.Services.AddScoped<KeycloakWrapper>();
+
 //automapper
 builder.Services.AddAutoMapper(cfg =>
 {

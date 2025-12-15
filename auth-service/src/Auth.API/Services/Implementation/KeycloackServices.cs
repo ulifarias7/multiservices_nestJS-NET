@@ -30,20 +30,25 @@ namespace Auth.API.Services.Implementation
             {
                 return await _keycloakClient.CreateUserAsync(realms, user);
 
-                //  emitir evento , hacer pegada a user-service ?
+                //  emitir evento , hacer pegada a user-service ?º
             });
         }
 
         public async Task<UserKeycloackDto> GetUserKeycloack(string id, string realms)
         {
-            var user = await _keycloakClient.GetUserAsync(realms, id);
-            var userDto = _mapper.Map<UserKeycloackDto>(user);
-            return userDto;
+            return await _keycloakWrapper.Execute(async () =>
+            {
+                var user = await _keycloakClient.GetUserAsync(realms, id);
+                return _mapper.Map<UserKeycloackDto>(user);
+            });
         }
+
         public async Task<bool> DeleteUserKeycloak(string id, string realms)
         {
-            var userDrop = await _keycloakClient.DeleteUserAsync(realms, id);
-            return userDrop;
+            return await _keycloakWrapper.Execute(async () =>
+            {
+                return await _keycloakClient.DeleteUserAsync(realms, id);
+            });
         }
 
         public async Task<bool> ResetPassword(ResetPasswordDto body, string realms)
@@ -55,19 +60,24 @@ namespace Auth.API.Services.Implementation
                 Temporary = body.Temporary
             };
 
-            var result = await _keycloakClient.ResetUserPasswordAsync(
-                realms,
-                body.UserId,
-                credential
-            );
-
-            return result;
+            return await _keycloakWrapper.Execute(async () =>
+            {
+                return await _keycloakClient.ResetUserPasswordAsync(
+                    realms,
+                    body.UserId,
+                    credential
+                );
+            });
         }
 
         public async Task<string> UpdateUserKeycloak(UpdateUserKeycloakDto body, string realms)
         {
             var user = _mapper.Map<User>(body);
-            var update = await _keycloakClient.UpdateUserAsync(realms, body.Id, user);
+
+            var update = await _keycloakWrapper.Execute(async () =>
+            {
+                return await _keycloakClient.UpdateUserAsync(realms, body.Id, user);
+            }); 
 
             if (update)
             {

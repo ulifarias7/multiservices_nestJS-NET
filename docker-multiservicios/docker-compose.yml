@@ -1,20 +1,20 @@
 services:
   # servicio documento (.net)
-  document-service:
-    container_name: document-service-multiservicios
-    build:
-      context: ../document-service/src/Document.API
-      dockerfile: Dockerfile
-    image: document-api:latest
-    ports:
-      - "8080:8080"
-    depends_on:
-      - minio
-      - postgres
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-    networks:
-      - multiservices-network
+  # document-service:
+  #   container_name: document-service-multiservicios
+  #   build:
+  #     context: ../document-service/src/Document.API
+  #     dockerfile: Dockerfile
+  #   image: document-api:latest
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - minio
+  #     - postgres
+  #   environment:
+  #     ASPNETCORE_ENVIRONMENT: Development
+  #   networks:
+  #     - multiservices-network
 
   # minio storage
   minio:
@@ -48,6 +48,18 @@ services:
     networks:
       - multiservices-network
 
+  # servicio auth (.Net)
+  auth-service:
+    container_name: auth-service-multiservicios
+    build:
+      context: ../auth-service/src/Auth.API
+      dockerfile: Dockerfile
+    image: auth-api:latest
+    ports:
+      - "8083:8083"
+    networks:
+      - multiservices-network
+
   # keycloak
   keycloak:
     image: quay.io/keycloak/keycloak:latest
@@ -56,7 +68,6 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-
       KC_DB: postgres
       KC_DB_USERNAME: admin
       KC_DB_PASSWORD: admin
@@ -105,6 +116,6 @@ networks:
     driver: bridge
 
 volumes:
-  minio-data:
+  minio-data: 
   pgdata:
   keycloak_data:
