@@ -40,11 +40,17 @@ services:
       dockerfile: Dockerfile
     image: user-api:latest
     ports:
-      - "3000:3001"
+      - "3001:3001"
     depends_on:
       - postgres
-    environment:
-      BDATABASE_URL: "postgresql://admin:admin@postgres:5432/userdb"
+    # environment:
+    #   DB_HOST: ${DB_HOST}
+    #   DB_PORT: ${DB_PORT}
+    #   DB_USER: ${DB_USER}
+    #   DB_PASS: ${DB_PASS}
+    #   DB_NAME: ${DB_NAME}
+    env_file:
+      - ../user-service/.env 
     networks:
       - multiservices-network
 

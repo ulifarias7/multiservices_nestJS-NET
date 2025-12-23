@@ -5,10 +5,10 @@ export class TypeOrmConfig {
   static getOrmConfig(): TypeOrmModuleOptions {
     return {
       type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
+      host: process.env.DB_HOST, 
       port: Number(process.env.DB_PORT) || 5432,
       username: process.env.DB_USER || 'admin',
-      password: process.env.DB_PASS || 'admin',
+      password: process.env.DB_PASS ,
       database: process.env.DB_NAME || 'userdb',
       entities: [User],
       synchronize: true,

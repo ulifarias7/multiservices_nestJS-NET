@@ -10,9 +10,14 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, 
+      isGlobal: true,
+      envFilePath: '.env',
     }),
-    TypeOrmModule.forRoot(TypeOrmConfig.getOrmConfig()),
+
+    TypeOrmModule.forRootAsync({
+      useFactory: () => TypeOrmConfig.getOrmConfig(),
+    }),
+
     TypeOrmModule.forFeature([User]),
   ],
   controllers: [UserController],
