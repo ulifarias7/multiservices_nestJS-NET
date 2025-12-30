@@ -120,6 +120,22 @@ services:
     networks:
       - multiservices-network
 
+  #  Rabbitmq 
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq-multiservicios
+    hostname: rabbitmq
+    ports:
+     - "5672:5672"
+     - "15672:15672"
+    environment:
+     RABBITMQ_DEFAULT_USER: admin
+     RABBITMQ_DEFAULT_PASS: admin123
+    volumes:
+     - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+     - multiservices-network 
+
 networks:
   multiservices-network:
     driver: bridge
@@ -128,3 +144,4 @@ volumes:
   minio-data: 
   pgdata:
   keycloak_data:
+  rabbitmq-data:
