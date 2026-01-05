@@ -1,18 +1,17 @@
 services:
   # servicio documento (.net)
   document-service:
-    container_name: document-service-multiservicios
     build:
-      context: ../document-service/src/Document.API
-      dockerfile: Dockerfile
-    image: document-api:latest
+      context: .  # ← Contexto desde la raíz del proyecto
+      dockerfile: document-service/src/Document.API/Dockerfile
+    container_name: document-service
     ports:
-      - "8080:8080"
+      - "5001:8080"
     depends_on:
-      - minio
-      - postgres
+      - rabbitmq
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
+      - ASPNETCORE_ENVIRONMENT=Development
+      - RabbitMQ__Uri=amqp://admin:admin123@rabbitmq:5672/
     networks:
       - multiservices-network
 
@@ -126,8 +125,8 @@ services:
     container_name: rabbitmq-multiservicios
     hostname: rabbitmq
     ports:
-     - "5672:5672"
-     - "15672:15672"
+     - "5672:5672" #puerto de amqp
+     - "15672:15672" #puerto de management UI 
     environment:
      RABBITMQ_DEFAULT_USER: admin
      RABBITMQ_DEFAULT_PASS: admin123
@@ -135,6 +134,8 @@ services:
      - rabbitmq-data:/var/lib/rabbitmq
     networks:
      - multiservices-network 
+
+# formato general : amqp://usuario:password@host:puerto/nombre_virtual_host osea = amqp://admin:admin123@rabbitmq:5672/
 
 networks:
   multiservices-network:

@@ -17,16 +17,25 @@ namespace RabbitMq.Connection
         }
         private void InitialConnection()
         {
-            if (string.IsNullOrEmpty(_connectionSettings.Uri))
-                throw new RabbitMQConnectionException("La url es requeridad");
+            _connectionFactory = new ConnectionFactory();
 
-            _connectionFactory = new ConnectionFactory
+            if (!string.IsNullOrEmpty(_connectionSettings.Url) &&
+                _connectionSettings.Url.StartsWith("amqp://"))
             {
-                Uri = new Uri(_connectionSettings.Uri!),
-                AutomaticRecoveryEnabled = true,
-                NetworkRecoveryInterval = TimeSpan.FromSeconds(5),
-                RequestedHeartbeat = TimeSpan.FromSeconds(60)
-            };
+                _connectionFactory.Uri = new Uri(_connectionSettings.Url);
+            }
+            else
+            {
+                _connectionFactory.HostName = _connectionSettings.HostName;
+                _connectionFactory.Port = _connectionSettings.Port;
+                _connectionFactory.UserName = _connectionSettings.UserName;
+                _connectionFactory.Password = _connectionSettings.Password;
+                _connectionFactory.VirtualHost = _connectionSettings.VirtualHost;
+            }
+
+            _connectionFactory.AutomaticRecoveryEnabled = true;
+            _connectionFactory.NetworkRecoveryInterval = TimeSpan.FromSeconds(5);
+            _connectionFactory.RequestedHeartbeat = TimeSpan.FromSeconds(60);
         }
 
         public async Task<IConnection> CreateConnectionAsync()

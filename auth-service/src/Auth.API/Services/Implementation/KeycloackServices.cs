@@ -62,13 +62,14 @@ namespace Auth.API.Services.Implementation
                     Temporary = body.Temporary
                 };
 
-            return await _keycloakWrapper.Execute(async () =>
-            {
-                return await _keycloakClient.ResetUserPasswordAsync(
-                    realms,
-                    body.UserId,
-                    credential
-                );
+                return await _keycloakWrapper.Execute(async () =>
+                {
+                    return await _keycloakClient.ResetUserPasswordAsync(
+                        realms,
+                        body.UserId,
+                        credential
+                    );
+                });
             });
         }
 
@@ -78,9 +79,9 @@ namespace Auth.API.Services.Implementation
             {
                 var user = _mapper.Map<User>(body);
                 var update = await _keycloakClient.UpdateUserAsync(realms, body.Id, user);
-                
+
                 return update
-                ? "el usuario se actualizo correctamente" 
+                ? "el usuario se actualizo correctamente"
                 : "no se pudo actualizar el usuario";
             });
         }

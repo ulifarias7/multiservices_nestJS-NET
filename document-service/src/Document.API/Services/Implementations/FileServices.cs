@@ -1,10 +1,12 @@
 ﻿
 using Document.API.Database.Entity;
+using Document.API.Models.Events;
 using Document.API.Models.Request;
 using Document.API.Models.Responses;
 using Document.API.Repository;
 using Minio;
 using Minio.DataModel.Args;
+using RabbitMq.Publisher;
 using System.Net;
 
 namespace Document.API.Services.Implementations
@@ -13,11 +15,15 @@ namespace Document.API.Services.Implementations
     {
         private readonly IMinioClient _minio;
         private readonly IFileRepository _fileRepository;
+        private readonly IMessagePublisher _messagePublisher;
 
-        public FileServices(IMinioClient minio, IFileRepository fileRepository)
+        public FileServices(IMinioClient minio,
+            IFileRepository fileRepository,
+            IMessagePublisher messagePublisher)
         {
             _minio = minio;
             _fileRepository = fileRepository;
+            _messagePublisher = messagePublisher;
         }
 
         public async Task<ResponsesObjectJson> CreateBucketAsync(string objectKey)
@@ -81,6 +87,23 @@ namespace Document.API.Services.Implementations
             };
 
             await _fileRepository.AddDocument(document);
+
+            //emitar evento 
+            var documentCreatedEvent = new DocumentCreatedEvent
+            {
+                BucketName = model.Bucket,
+                Url = objectName,
+                CreatedAt = document.CreatAt,
+                FileName = model.File.FileName,
+            };
+
+            await _messagePublisher.PublishToQueueAsync(
+                queueName: "document.created",
+                message: documentCreatedEvent,
+                persistent: true
+            );
+
+            Console.WriteLine($"Evento DocumentCreated emitido para: {objectName}");
 
             return new ResponsesObjectJson
             {
