@@ -1,6 +1,5 @@
 ﻿using Auth.API.Models;
 using Auth.API.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Auth.API.Controllers

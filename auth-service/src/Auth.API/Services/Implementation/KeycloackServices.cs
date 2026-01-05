@@ -30,18 +30,17 @@ namespace Auth.API.Services.Implementation
             {
                 return await _keycloakClient.CreateUserAsync(realms, user);
 
-                //  emitir evento , hacer pegada a user-service ?
+                //  emitir evento , hacer pegada a user-service ?º
             });
         }
 
         public async Task<UserKeycloackDto> GetUserKeycloack(string id, string realms)
         {
-            var user = await _keycloakWrapper.Execute(async () =>
+            return await _keycloakWrapper.Execute(async () =>
             {
-                await _keycloakClient.GetUserAsync(realms, id);
-            }); 
-
-            return _mapper.Map<UserKeycloackDto>(user);
+                var user = await _keycloakClient.GetUserAsync(realms, id);
+                return _mapper.Map<UserKeycloackDto>(user);
+            });
         }
 
         public async Task<bool> DeleteUserKeycloak(string id, string realms)
@@ -49,7 +48,7 @@ namespace Auth.API.Services.Implementation
             return await _keycloakWrapper.Execute(async () =>
             {
                 return await _keycloakClient.DeleteUserAsync(realms, id);
-            }); 
+            });
         }
 
         public async Task<bool> ResetPassword(ResetPasswordDto body, string realms)
@@ -63,12 +62,14 @@ namespace Auth.API.Services.Implementation
                     Temporary = body.Temporary
                 };
 
+            return await _keycloakWrapper.Execute(async () =>
+            {
                 return await _keycloakClient.ResetUserPasswordAsync(
                     realms,
                     body.UserId,
                     credential
                 );
-            });        
+            });
         }
 
         public async Task<string> UpdateUserKeycloak(UpdateUserKeycloakDto body, string realms)

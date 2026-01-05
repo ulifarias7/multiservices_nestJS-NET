@@ -40,11 +40,32 @@ services:
       dockerfile: Dockerfile
     image: user-api:latest
     ports:
-      - "3000:3001"
+      - "3001:3001"
     depends_on:
       - postgres
+    # environment:
+    #   DB_HOST: ${DB_HOST}
+    #   DB_PORT: ${DB_PORT}
+    #   DB_USER: ${DB_USER}
+    #   DB_PASS: ${DB_PASS}
+    #   DB_NAME: ${DB_NAME}
+    env_file:
+      - ../user-service/.env 
+    networks:
+      - multiservices-network
+
+  # servicio auth (.Net)
+  auth-service:
+    container_name: auth-service-multiservicios
+    build:
+      context: ../auth-service/src/Auth.API
+      dockerfile: Dockerfile
+    image: auth-api:latest
+    ports:
+      - "8083:8083"
     environment:
-      BDATABASE_URL: "postgresql://admin:admin@postgres:5432/userdb"
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8083  
     networks:
       - multiservices-network
 
@@ -56,7 +77,6 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-
       KC_DB: postgres
       KC_DB_USERNAME: admin
       KC_DB_PASSWORD: admin
@@ -100,11 +120,28 @@ services:
     networks:
       - multiservices-network
 
+  #  Rabbitmq 
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq-multiservicios
+    hostname: rabbitmq
+    ports:
+     - "5672:5672"
+     - "15672:15672"
+    environment:
+     RABBITMQ_DEFAULT_USER: admin
+     RABBITMQ_DEFAULT_PASS: admin123
+    volumes:
+     - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+     - multiservices-network 
+
 networks:
   multiservices-network:
     driver: bridge
 
 volumes:
-  minio-data:
+  minio-data: 
   pgdata:
   keycloak_data:
+  rabbitmq-data:
