@@ -36,65 +36,79 @@ namespace Auth.API.Services.Implementation
 
         public async Task<UserKeycloackDto> GetUserKeycloack(string id, string realms)
         {
-            var user = await _keycloakClient.GetUserAsync(realms, id);
-            var userDto = _mapper.Map<UserKeycloackDto>(user);
-            return userDto;
+            var user = await _keycloakWrapper.Execute(async () =>
+            {
+                await _keycloakClient.GetUserAsync(realms, id);
+            }); 
+
+            return _mapper.Map<UserKeycloackDto>(user);
         }
+
         public async Task<bool> DeleteUserKeycloak(string id, string realms)
         {
-            var userDrop = await _keycloakClient.DeleteUserAsync(realms, id);
-            return userDrop;
+            return await _keycloakWrapper.Execute(async () =>
+            {
+                return await _keycloakClient.DeleteUserAsync(realms, id);
+            }); 
         }
 
         public async Task<bool> ResetPassword(ResetPasswordDto body, string realms)
         {
-            var credential = new Credentials
+            return await _keycloakWrapper.Execute(async () =>
             {
-                Type = "password",
-                Value = body.NewPassword,
-                Temporary = body.Temporary
-            };
+                var credential = new Credentials
+                {
+                    Type = "password",
+                    Value = body.NewPassword,
+                    Temporary = body.Temporary
+                };
 
-            var result = await _keycloakClient.ResetUserPasswordAsync(
-                realms,
-                body.UserId,
-                credential
-            );
-
-            return result;
+                return await _keycloakClient.ResetUserPasswordAsync(
+                    realms,
+                    body.UserId,
+                    credential
+                );
+            });        
         }
 
         public async Task<string> UpdateUserKeycloak(UpdateUserKeycloakDto body, string realms)
         {
-            var user = _mapper.Map<User>(body);
-            var update = await _keycloakClient.UpdateUserAsync(realms, body.Id, user);
-
-            if (update)
+            return await _keycloakWrapper.Execute(async () =>
             {
-                return "Se edito el usuario con exitosamente.";
-            }
-
-            return "No se pudo editar el usuario.";
+                var user = _mapper.Map<User>(body);
+                var update = await _keycloakClient.UpdateUserAsync(realms, body.Id, user);
+                
+                return update
+                ? "el usuario se actualizo correctamente" 
+                : "no se pudo actualizar el usuario";
+            });
         }
 
         public async Task<IEnumerable<UserKeycloackDto>> SearchUsers(
-        string realm, string? search = null, string? email = null, string? username = null,
-        string? firstName = null, string? lastName = null)
+        string realm,
+        string? search = null,
+        string? email = null,
+        string? username = null,
+        string? firstName = null,
+        string? lastName = null)
         {
-            if (!string.IsNullOrWhiteSpace(search))
+            return await _keycloakWrapper.Execute(async () =>
             {
-                username = search;
-            }
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    username = search;
+                }
 
-            var users = await _keycloakClient.GetUsersAsync(
-                realm,
-                email: email,
-                firstName: firstName,
-                lastName: lastName,
-                username: username
-            );
+                var users = await _keycloakClient.GetUsersAsync(
+                    realm,
+                    email: email,
+                    firstName: firstName,
+                    lastName: lastName,
+                    username: username
+                );
 
-            return _mapper.Map<IEnumerable<UserKeycloackDto>>(users);
+                return _mapper.Map<IEnumerable<UserKeycloackDto>>(users);
+            });
         }
     }
 }

@@ -14,15 +14,17 @@ namespace Auth.API.MappingConfig
                .ForMember(dest => dest.EmailVerified, opt => opt.MapFrom(src => src.EmailVerified ?? false))
                .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled ?? true))
                .ForMember(dest => dest.Credentials, opt => opt.MapFrom(src =>
-                   new List<Credentials>
-                   {
-                    new Credentials
-                    {
-                        Type = "password",
-                        Value = src.CredentialDto.Value,
-                        Temporary = src.CredentialDto.Temporary ?? false
-                    }
-                   }));
+                            src.CredentialDto == null
+                                ? null
+                                : new List<Credentials>
+                                {
+                                    new Credentials
+                                    {
+                                        Type = "password",
+                                        Value = src.CredentialDto.Value,
+                                        Temporary = src.CredentialDto.Temporary ?? false
+                                    }
+                                }));
 
             //Get de usuario
             CreateMap<User, UserKeycloackDto>();
