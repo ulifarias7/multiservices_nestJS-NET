@@ -1,17 +1,23 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY Document.API.csproj .
-RUN dotnet restore
-COPY . .
+# copiar csproj
+COPY document-service/src/Document.API/Document.API.csproj document-service/src/Document.API/
+COPY RabbitMq/RabbitMq.csproj RabbitMq/
 
-RUN dotnet publish -c Release -o /app/publish --no-restore
+# restore limpio (LINUX)
+RUN dotnet restore document-service/src/Document.API/Document.API.csproj --no-cache
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+# copiar código
+COPY document-service/src/Document.API/ document-service/src/Document.API/
+COPY RabbitMq/ RabbitMq/
+
+WORKDIR /src/document-service/src/Document.API
+
+# publish (SIN --no-restore)
+RUN dotnet publish -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=build /app/publish .
-
-EXPOSE 8080
-EXPOSE 8081
-
 ENTRYPOINT ["dotnet", "Document.API.dll"]

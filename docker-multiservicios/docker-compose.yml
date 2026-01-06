@@ -1,19 +1,19 @@
 services:
   # servicio documento (.net)
   document-service:
-    build:
-      context: .  # ← Contexto desde la raíz del proyecto
-      dockerfile: document-service/src/Document.API/Dockerfile
-    container_name: document-service
-    ports:
-      - "5001:8080"
-    depends_on:
-      - rabbitmq
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - RabbitMQ__Uri=amqp://admin:admin123@rabbitmq:5672/
-    networks:
-      - multiservices-network
+   build:
+    context: ..
+    dockerfile: document-service/src/Document.API/Dockerfile
+   container_name: document-service
+   ports:
+    - "5001:8080"
+   depends_on:
+    - rabbitmq
+   environment:
+    ASPNETCORE_ENVIRONMENT: Development
+    RabbitMQ__Url: amqp://admin:admin123@rabbitmq:5672/
+   networks:
+    - multiservices-network
 
   # minio storage
   minio:
