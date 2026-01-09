@@ -1,12 +1,12 @@
 ﻿
 using Document.API.Database.Entity;
+using Document.API.Messaging;
 using Document.API.Models.Events;
 using Document.API.Models.Request;
 using Document.API.Models.Responses;
 using Document.API.Repository;
 using Minio;
 using Minio.DataModel.Args;
-using RabbitMq.Publisher;
 using System.Net;
 
 namespace Document.API.Services.Implementations
@@ -15,15 +15,15 @@ namespace Document.API.Services.Implementations
     {
         private readonly IMinioClient _minio;
         private readonly IFileRepository _fileRepository;
-        private readonly IMessagePublisher _messagePublisher;
+        private readonly IRabbitMqPublisher _rabbitMqPublisher;
 
         public FileServices(IMinioClient minio,
             IFileRepository fileRepository,
-            IMessagePublisher messagePublisher)
+            IRabbitMqPublisher rabbitMqPublisher)
         {
             _minio = minio;
             _fileRepository = fileRepository;
-            _messagePublisher = messagePublisher;
+            _rabbitMqPublisher = rabbitMqPublisher;
         }
 
         public async Task<ResponsesObjectJson> CreateBucketAsync(string objectKey)
@@ -57,7 +57,7 @@ namespace Document.API.Services.Implementations
             bool exists = await _minio.BucketExistsAsync(new BucketExistsArgs().WithBucket(model.Bucket));
 
             if (!exists)
-                throw new Exception($"El bucket '{model.Bucket}' no existe.");
+                throw new Exception($"El bucket '{model.Bucket}' ya existe.");
 
             var bucketDb = await _fileRepository.GetBucketByName(model.Bucket);
 
@@ -88,22 +88,14 @@ namespace Document.API.Services.Implementations
 
             await _fileRepository.AddDocument(document);
 
-            //emitar evento 
-            var documentCreatedEvent = new DocumentCreatedEvent
+            //evento
+            await _rabbitMqPublisher.PublishAsync(new DocumentCreatedEvent
             {
-                BucketName = model.Bucket,
+                DocumentId = document.Id,
+                Bucket = model.Bucket,
                 Url = objectName,
-                CreatedAt = document.CreatAt,
-                FileName = model.File.FileName,
-            };
-
-            await _messagePublisher.PublishToQueueAsync(
-                queueName: "document.created",
-                message: documentCreatedEvent,
-                persistent: true
-            );
-
-            Console.WriteLine($"Evento DocumentCreated emitido para: {objectName}");
+                CreatedAt = document.CreatAt
+            });
 
             return new ResponsesObjectJson
             {

@@ -44,22 +44,35 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "local")
 {
     //app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-//Log URL del swagger
-var logger = app.Services.GetRequiredService<ILogger<Program>>();
-var httpPort = builder.Configuration["Swagger:HTTP-PORT"];
-var httpsPort = builder.Configuration["Swagger:HTTPS-PORT"];
-var port = httpPort ?? httpsPort;
-logger.LogInformation("Swagger disponible en: http://localhost:{port}/swagger", port);
+////Log URL del swagger
+//var logger = app.Services.GetRequiredService<ILogger<Program>>();
+//var httpPort = builder.Configuration["Swagger:HTTP-PORT"];
+//var httpsPort = builder.Configuration["Swagger:HTTPS-PORT"];
+//var port = httpPort ?? httpsPort;
+//logger.LogInformation($"Swagger disponible en: http://localhost:{port}/swagger", port);
+
+
+//logs del kestrel que expone el puerto 
+app.Lifetime.ApplicationStarted.Register(() =>
+    {
+        var addresses = app.Urls;
+        foreach (var address in addresses)
+        {
+            app.Logger.LogInformation($"Aplicación escuchando en: {address}");
+        }
+    }
+);
 
 app.UseMiddleware<KeycloakExceptionMiddleware>();
 app.UseHttpsRedirection();
-app.MapControllers();
 app.UseRouting();
+//app.UseAuthorized();
+app.MapControllers();
 app.Run();

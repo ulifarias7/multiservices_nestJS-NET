@@ -237,3 +237,7 @@ osea en resumen es asi
 2-el reino master es un "panel de control" global que administre todo Keycloak.crea reinos , crea usuario admin y clientes globales.
 3-el reino que vos cree es tu app ,es donde va a estar todo lo de tu app (usuarios,empresas etc).
 4-el cliente que vos cree es para la authenticacion de tu app por eso esta dentro de tu reino (la autenticacion puede ser publica, confidencial o cli)
+
+
+reino de mi app - auth-service
+usuario de mi reino - myuserkeycloack@yopmial.com - myuser123

@@ -1,17 +1,22 @@
 services:
   # servicio documento (.net)
   document-service:
-   build:
-    context: ..
-    dockerfile: document-service/src/Document.API/Dockerfile
-   container_name: document-service
+   image: document-api:latest
+  #  build:
+  #   context:  ./document-service/src/Document.API
+  #   dockerfile: Dockerfile
+   container_name: document-service-multiservicios
    ports:
     - "5001:8080"
    depends_on:
     - rabbitmq
+    #las variables de entorno para que se comuniquen entre los microservicios las declaro aca para dejar los appsetting para el uso local 
    environment:
+    Minio__Endpoint: minio:9000
     ASPNETCORE_ENVIRONMENT: Development
-    RabbitMQ__Url: amqp://admin:admin123@rabbitmq:5672/
+    RabbitMQ__Uri: amqp://admin:admin123@rabbitmq:5672/
+    RabbitMQ__QueueName: document.created
+    ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=documentdb;Username=admin;Password=admin
    networks:
     - multiservices-network
 
@@ -34,10 +39,10 @@ services:
   # servicio user (Nest)
   user-service:
     container_name: user-service-multiservicios
-    build:
-      context: ../user-service
-      dockerfile: Dockerfile
-    image: user-api:latest
+    image : user-api:latest 
+    # build:
+    #   context: ./user-service
+    #   dockerfile: Dockerfile
     ports:
       - "3001:3001"
     depends_on:
@@ -49,7 +54,7 @@ services:
     #   DB_PASS: ${DB_PASS}
     #   DB_NAME: ${DB_NAME}
     env_file:
-      - ../user-service/.env 
+      - ./user-service/.env 
     networks:
       - multiservices-network
 
@@ -57,8 +62,8 @@ services:
   auth-service:
     container_name: auth-service-multiservicios
     build:
-      context: ../auth-service/src/Auth.API
-      dockerfile: Dockerfile
+      context: ./auth-service/src/Auth.API
+      dockerfile: Dockerfile 
     image: auth-api:latest
     ports:
       - "8083:8083"

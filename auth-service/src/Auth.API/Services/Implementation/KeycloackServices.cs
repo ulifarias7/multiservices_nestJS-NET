@@ -30,7 +30,7 @@ namespace Auth.API.Services.Implementation
             {
                 return await _keycloakClient.CreateUserAsync(realms, user);
 
-                //  emitir evento , hacer pegada a user-service ?º
+                //  emitir evento , hacer pegada a user-service ?
             });
         }
 
