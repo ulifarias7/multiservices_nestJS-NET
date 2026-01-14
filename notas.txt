@@ -241,3 +241,33 @@ osea en resumen es asi
 
 reino de mi app - auth-service
 usuario de mi reino - myuserkeycloack@yopmial.com - myuser123
+
+
+///////////////////////////////////////////////
+Audit services :
+app donde se va a consumir los eventos de cada microservicio y generar logger a nivel datos en una base de datos para llevar el control
+de las acciones (que paso , quien lo creo , cuando y que datos (id).)
+
+Tabla de ejemplo para guiarme:
+CREATE TABLE audit_events (
+    id                  UUID PRIMARY KEY,
+    
+    event_name           TEXT NOT NULL,          -- created.document, send.email (nombre del evento)
+    routing_key          TEXT NOT NULL,          -- created.document (nombre de la cola)
+    exchange             TEXT NOT NULL,          -- app.events   (de donde viene )
+
+    source_service       TEXT NOT NULL,          -- document-service, auth-service
+    source_host          TEXT NULL,              -- opcional (pod / container)
+
+    payload              JSONB NOT NULL,         -- mensaje completo
+    headers              JSONB NULL,             -- headers Rabbit / tracing
+
+    correlation_id       TEXT NULL,              -- para tracing distribuido
+    causation_id         TEXT NULL,              -- evento padre
+    message_id           TEXT NOT NULL,          -- Rabbit messageId
+
+    occurred_at          TIMESTAMPTZ NOT NULL,   -- cuando ocurrió el evento
+    received_at          TIMESTAMPTZ NOT NULL,   -- cuando audit lo guardó
+
+    created_at           TIMESTAMPTZ NOT NULL DEFAULT now()
+); 
