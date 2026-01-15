@@ -1,0 +1,50 @@
+# Ignorar carpetas de build
+bin/
+obj/
+out/
+
+# Ignorar dependencias temporales
+node_modules/
+packages/
+
+# Ignorar configuración sensible
+*.user
+*.vspscc
+*.suo
+*.swp
+*.dbmdl
+*.jfm
+*.log
+
+# Ignorar sistema operativo
+.DS_Store
+Thumbs.db
+
+# Ignorar Git y CI
+.git
+.gitignore
+.gitattributes
+.github/
+
+# Ignorar archivos de IDE
+.vs/
+.idea/
+.vscode/
+
+bin/
+obj/
+**/bin/
+**/obj/
+*.db
+*.mdf
+*.ldf
+*.bak
+*.log
+*.sql
+*.sqlite
+
+#por que tengo la carpeta de los volumenes de docker y por las duda q me cree la imagen con eso 
+**/sqlserver_data/
+**/pgadmin_data/
+**/mysql_data/
+.git/
