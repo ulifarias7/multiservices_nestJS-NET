@@ -1,6 +1,11 @@
+using Auditory.API.Database.Persistence;
+using Auditory.API.Messaging.Consumers;
+using Auditory.API.Messaging.Options;
 using Auditory.API.Repository;
+using Auditory.API.Repository.Implementations;
 using Auditory.API.Services;
 using Auditory.API.Services.Implementations;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,12 +21,27 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IAuditServices, AuditServices>();
 
 //repository
-builder.Services.AddScoped<IAuditRepository, IAuditRepository>();
+builder.Services.AddScoped<IAuditRepository, AuditRepository>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//contexto
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("AuditService"));
+});
+
+//rabbit 
+var rabbitOptions = builder.Configuration
+    .GetSection("RabbitMQ")
+    .Get<RabbitMqDocumentServiceOptions>()!;
+
+builder.Services.AddSingleton(rabbitOptions);
+builder.Services.AddHostedService<DocumentCreatedConsumer>();
+
+//build
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -46,7 +66,7 @@ app.Lifetime.ApplicationStarted.Register(() =>
     var addresses = app.Urls;
     foreach (var address in addresses)
     {
-        app.Logger.LogInformation($"Aplicación escuchando en: {address}");
+        app.Logger.LogInformation($"Aplicaciï¿½n escuchando en: {address}");
     }
 }
 );

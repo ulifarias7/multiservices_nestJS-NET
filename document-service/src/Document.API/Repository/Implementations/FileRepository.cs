@@ -1,7 +1,5 @@
 ﻿using Document.API.Database.Entity;
 using Document.API.Database.Persistence;
-using Document.API.Models.Dtos;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Document.API.Repository.Implementations
 {

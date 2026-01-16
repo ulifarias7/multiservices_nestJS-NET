@@ -7,9 +7,33 @@ namespace Auditory.API.Services.Implementations
     {
         private readonly IAuditRepository _auditRepository;
 
-        public Task<AuditDto> GetRegister(int id)
+        public AuditServices(IAuditRepository auditRepository)
         {
-            throw new NotImplementedException();
+            _auditRepository = auditRepository;
+        }
+
+        public async Task<AuditDto> GetRegister(int id)
+        {
+            var register = await _auditRepository.GetRegister(id);
+
+            if (register is null)
+                throw new ArgumentException($"no existe registro con ese id: {id}");
+
+            var registerDto = new AuditDto()
+            {
+                Id = register.Id,
+                EventName = register.EventName,
+                RoutingKey = register.RoutingKey,
+                Exchange = register.Exchange,
+                SourceService = register.SourceService,
+                SourceHost = register.SourceHost,
+                Payload = register.Payload,
+                Headers = register.Headers,
+                CorrelationId = register.CorrelationId,
+                MessageId = register.MessageId,
+            };
+
+            return registerDto;
         }
     }
 }

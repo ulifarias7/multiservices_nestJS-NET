@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY Audit.API.csproj .
+COPY Auditory.API.csproj .
 RUN dotnet restore
 COPY . .
 
@@ -13,4 +13,4 @@ COPY --from=build /app/publish .
 
 EXPOSE 7003
 
-ENTRYPOINT ["dotnet", "Auth.API.dll"]
+ENTRYPOINT ["dotnet", "Auditory.API.dll"]

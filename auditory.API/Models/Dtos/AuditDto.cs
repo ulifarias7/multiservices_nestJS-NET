@@ -4,7 +4,7 @@ namespace Auditory.API.Models.Dtos
 {
     public class AuditDto
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string EventName { get; set; } = string.Empty;
         public string RoutingKey { get; set; } = string.Empty;
         public string Exchange { get; set; } = string.Empty;

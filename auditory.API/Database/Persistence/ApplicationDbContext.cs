@@ -8,6 +8,6 @@ namespace Auditory.API.Database.Persistence
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         { }
-        public virtual DbSet<AuditEntity> AuditEntities { get; set; }
+        public virtual DbSet<AuditEntity> Audits { get; set; }
     }
 }
