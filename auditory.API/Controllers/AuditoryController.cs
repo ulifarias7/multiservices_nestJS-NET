@@ -16,7 +16,7 @@ namespace auditory.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetRegister([FromQuery] int id)
+        public async Task<IActionResult> GetRegister([FromQuery] Guid id)
         {
             var result = await _auditService.GetRegister(id);
             return Ok(result);

@@ -12,7 +12,7 @@ namespace Auditory.API.Services.Implementations
             _auditRepository = auditRepository;
         }
 
-        public async Task<AuditDto> GetRegister(int id)
+        public async Task<AuditDto> GetRegister(Guid id)
         {
             var register = await _auditRepository.GetRegister(id);
 

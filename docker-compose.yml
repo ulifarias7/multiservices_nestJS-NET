@@ -128,6 +128,7 @@ services:
   rabbitmq:
     image: rabbitmq:3.13-management
     container_name: rabbitmq-multiservicios
+    tty: true
     hostname: rabbitmq
     ports:
      - "5672:5672" #puerto de amqp

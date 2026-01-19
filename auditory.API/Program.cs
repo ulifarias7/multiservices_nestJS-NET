@@ -1,4 +1,5 @@
 using Auditory.API.Database.Persistence;
+using Auditory.API.MappingConfig;
 using Auditory.API.Messaging.Consumers;
 using Auditory.API.Messaging.Options;
 using Auditory.API.Repository;
@@ -6,6 +7,7 @@ using Auditory.API.Repository.Implementations;
 using Auditory.API.Services;
 using Auditory.API.Services.Implementations;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,12 +35,26 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("AuditService"));
 });
 
+//automapper 
+builder.Services.AddAutoMapper(typeof(MapperProfile));
+
 //rabbit 
 var rabbitOptions = builder.Configuration
     .GetSection("RabbitMQ")
     .Get<RabbitMqDocumentServiceOptions>()!;
 
 builder.Services.AddSingleton(rabbitOptions);
+
+builder.Services.AddSingleton<IConnectionFactory>(sp =>
+{
+    var options = sp.GetRequiredService<RabbitMqDocumentServiceOptions>();
+
+    return new ConnectionFactory
+    {
+        Uri = new Uri(options.Uri)
+    };
+});
+
 builder.Services.AddHostedService<DocumentCreatedConsumer>();
 
 //build

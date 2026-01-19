@@ -4,7 +4,7 @@ namespace Auditory.API.Database.Entity
 {
     public class AuditEntity
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string EventName { get; set; } = default!;
         public string RoutingKey { get; set; } = default!;
         public string Exchange { get; set; } = default!;

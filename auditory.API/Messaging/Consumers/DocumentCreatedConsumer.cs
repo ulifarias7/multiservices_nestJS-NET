@@ -1,6 +1,7 @@
 ﻿using Auditory.API.Database.Entity;
 using Auditory.API.Database.Persistence;
 using Auditory.API.Messaging.Options;
+using AutoMapper;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
@@ -15,16 +16,20 @@ namespace Auditory.API.Messaging.Consumers
         private readonly ILogger<DocumentCreatedConsumer> _logger;
         private IConnection? _connection;
         private IChannel? _channel;
+        private readonly IMapper _mapper;
 
         public DocumentCreatedConsumer(
             RabbitMqDocumentServiceOptions rabbitMqOptions,
             IServiceScopeFactory scopeFactory,
-            ILogger<DocumentCreatedConsumer> logger)
+            ILogger<DocumentCreatedConsumer> logger,
+            IMapper mapper)
         {
             _rabbitMqOptions = rabbitMqOptions;
             _scopeFactory = scopeFactory;
             _logger = logger;
+            _mapper = mapper;
         }
+
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -34,9 +39,9 @@ namespace Auditory.API.Messaging.Consumers
             };
 
             _connection = await factory.CreateConnectionAsync(stoppingToken);
-            _logger.LogInformation($"esta es la ruta de conexion{factory.Uri}");
+            _logger.LogInformation($"Se genero la conexion con la url : {factory.Uri}");
             _channel = await _connection.CreateChannelAsync();
-            _logger.LogInformation($"se genero la conexion");
+            _logger.LogInformation($"se genero el canal.");
 
             await _channel.QueueDeclareAsync(
                 queue: _rabbitMqOptions.QueueName,
@@ -68,23 +73,10 @@ namespace Auditory.API.Messaging.Consumers
                 var body = Encoding.UTF8.GetString(args.Body.ToArray());
                 var payloadJson = JsonDocument.Parse(body);
 
-                var audit = new AuditEntity
-                {
-                    EventName = "DocumentCreated",
-                    RoutingKey = args.RoutingKey,
-                    Exchange = args.Exchange,
-                    SourceService = _rabbitMqOptions.SourceService,
-                    SourceHost = Environment.MachineName,
-                    Payload = payloadJson,
-                    Headers = args.BasicProperties.Headers is not null
-                        ? JsonDocument.Parse(JsonSerializer.Serialize(args.BasicProperties.Headers))
-                        : null,
-                    CorrelationId = args.BasicProperties.CorrelationId,
-                    CausationId = null,
-                    MessageId = args.BasicProperties.MessageId ?? Guid.NewGuid().ToString(),
-                    OccurredAt = ExtractOccurredAt(payloadJson),
-                    ReceivedAt = DateTime.UtcNow
-                };
+                var audit = _mapper.Map<AuditEntity>(args);
+                audit.SourceService = _rabbitMqOptions.SourceService;
+                audit.Payload = payloadJson;
+                audit.OccurredAt = ExtractOccurredAt(payloadJson);
 
                 db.Audits.Add(audit);
                 await db.SaveChangesAsync();
@@ -105,7 +97,7 @@ namespace Auditory.API.Messaging.Consumers
             return DateTime.UtcNow;
         }
 
-        public override async Task StopAsync(CancellationToken cancellationToken)//se ejeuta cuando la app se esta apagando 
+        public override async Task StopAsync(CancellationToken cancellationToken)//se ejecuta cuando la app se esta apagando 
         {
             if (_channel != null) await _channel.CloseAsync();
             if (_connection != null) await _connection.CloseAsync();

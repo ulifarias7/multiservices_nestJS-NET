@@ -4,6 +4,6 @@ namespace Auditory.API.Services
 {
     public interface IAuditServices
     {
-        public Task<AuditDto> GetRegister(int id);
+        public Task<AuditDto> GetRegister(Guid id);
     }
 }

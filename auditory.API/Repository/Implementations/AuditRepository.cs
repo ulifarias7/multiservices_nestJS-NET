@@ -12,7 +12,7 @@ namespace Auditory.API.Repository.Implementations
             _context = context;
         }
 
-        public async Task<AuditEntity?> GetRegister(int id)
+        public async Task<AuditEntity?> GetRegister(Guid id)
         {
             return _context.Audits
                .Where(b => b.Id == id)
