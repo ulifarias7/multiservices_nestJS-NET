@@ -6,12 +6,15 @@ import { User } from './user/domain/entities/user.entity';
 import { UserRepository } from './user/infraestructure/repository/user.repository';
 import { TypeOrmConfig } from './user/infraestructure/configurations/typeorm.config';  
 import { ConfigModule } from '@nestjs/config';
+import * as fs from 'fs';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
+            isGlobal: true,
+            envFilePath: process.env.NODE_ENV === 'local'
+              ? '.env.local'
+              : '.env',
     }),
 
     TypeOrmModule.forRootAsync({

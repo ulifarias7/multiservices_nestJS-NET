@@ -48,3 +48,54 @@ obj/
 **/pgadmin_data/
 **/mysql_data/
 .git/
+
+
+# Directorios de build
+**/bin/
+**/obj/
+**/out/
+**/.vs/
+
+# Archivos de usuario de Visual Studio
+**/*.user
+**/*.suo
+**/*.userosscache
+**/*.sln.docstates
+
+# NuGet
+**/packages/
+**/.nuget/
+**/project.lock.json
+**/project.fragment.lock.json
+**/artifacts/
+
+# Archivos de configuración local
+**/appsettings.Development.json
+**/launchSettings.json
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+**/Dockerfile*
+**/docker-compose*
+**/.dockerignore
+
+# IDE
+.vscode/
+.idea/
+
+# Testing
+**/TestResults/
+
+# Coverage
+**/coverage/
+**/*.coverage
+**/*.coveragexml
+
+# Otros
+**/*.md
+**/LICENSE
+**/.env

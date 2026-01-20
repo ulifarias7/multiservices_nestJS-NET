@@ -288,3 +288,15 @@ ADD COLUMN IF NOT EXISTS "MessageId"     TEXT        NOT NULL,
 ADD COLUMN IF NOT EXISTS "OccurredAt"    TIMESTAMPTZ NOT NULL,
 ADD COLUMN IF NOT EXISTS "ReceivedAt"    TIMESTAMPTZ NOT NULL,
 ADD COLUMN IF NOT EXISTS "CreatedAt"     TIMESTAMPTZ NOT NULL DEFAULT now();
+
+-----------------------------------------------------
+para ejecutar la app de netsjs (user-service)
+
+para que tome el env.local..
+
+# Si EXISTE .env.local → Usa .env.local
+npm run dev
+npm run dev:local
+npm run start:dev
+
+docker siempre va a tomar .env

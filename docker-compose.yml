@@ -2,21 +2,22 @@ services:
   # servicio documento (.net)
   document-service:
    image: document-api:latest
-  #  build:
-  #   context:  ./document-service/src/Document.API
-  #   dockerfile: Dockerfile
+   build:
+    context:  ./document-service/src/Document.API
+    dockerfile: Dockerfile
    container_name: document-service-multiservicios
    ports:
     - "5001:8080"
    depends_on:
-    - rabbitmq
+     postgres:
+      condition: service_healthy
+     rabbitmq:
+      condition: service_healthy
     #las variables de entorno para que se comuniquen entre los microservicios las declaro aca para dejar los appsetting para el uso local 
    environment:
-    Minio__Endpoint: minio:9000
-    ASPNETCORE_ENVIRONMENT: Development
-    RabbitMQ__Uri: amqp://admin:admin123@rabbitmq:5672/
-    RabbitMQ__QueueName: document.created
-    ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=documentdb;Username=admin;Password=admin
+     Minio__Endpoint: minio:9000
+     ASPNETCORE_ENVIRONMENT: Development
+     RabbitMQ__Uri: amqp://admin:admin123@rabbitmq:5672/
    networks:
     - multiservices-network
 
@@ -44,15 +45,9 @@ services:
     #   context: ./user-service
     #   dockerfile: Dockerfile
     ports:
-      - "3001:3001"
+      - "3001:3000"
     depends_on:
-      - postgres
-    # environment:
-    #   DB_HOST: ${DB_HOST}
-    #   DB_PORT: ${DB_PORT}
-    #   DB_USER: ${DB_USER}
-    #   DB_PASS: ${DB_PASS}
-    #   DB_NAME: ${DB_NAME}
+      - postgres 
     env_file:
       - ./user-service/.env 
     networks:
@@ -73,6 +68,26 @@ services:
     networks:
       - multiservices-network
 
+  #servicio auditoria
+  auditory-service:
+    container_name: auditory-service-multiservicios
+    build:
+      context: ./auditory.API 
+      dockerfile : Dockerfile
+    image : auditory-api:latest
+    ports :
+      - "5063:5007"
+    environment:  
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5007 #es el del kestrel , osea le definimos un puero al kestrel del contenedor.
+    depends_on:
+     postgres:
+      condition: service_healthy
+     rabbitmq:
+      condition: service_healthy
+    networks:
+     - multiservices-network  
+
   # keycloak
   keycloak:
     image: quay.io/keycloak/keycloak:latest
@@ -81,11 +96,11 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_DB: postgres
+      #KC_DB: postgres
       KC_DB_USERNAME: admin
       KC_DB_PASSWORD: admin
       KC_DB_URL_HOST: postgres
-      KC_DB_URL_DATABASE: keycloakdb
+     #KC_DB_URL_DATABASE: keycloakdb
     ports:
       - "8082:8080"
     depends_on:
@@ -103,6 +118,11 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: keycloakdb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 5s
+      timeout: 5s
+      retries: 5  
     ports:
       - "5432:5432"
     volumes:
@@ -125,23 +145,27 @@ services:
       - multiservices-network
 
   #  Rabbitmq 
+  # formato general : amqp://usuario:password@host:puerto/nombre_virtual_host osea = amqp://admin:admin123@rabbitmq:5672/
   rabbitmq:
     image: rabbitmq:3.13-management
     container_name: rabbitmq-multiservicios
     tty: true
     hostname: rabbitmq
     ports:
-     - "5672:5672" #puerto de amqp
-     - "15672:15672" #puerto de management UI 
+      - "5672:5672" #puerto de amqp
+      - "15672:15672" #puerto de management UI 
     environment:
-     RABBITMQ_DEFAULT_USER: admin
-     RABBITMQ_DEFAULT_PASS: admin123
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
-     - rabbitmq-data:/var/lib/rabbitmq
+      - rabbitmq-data:/var/lib/rabbitmq
     networks:
-     - multiservices-network 
-
-# formato general : amqp://usuario:password@host:puerto/nombre_virtual_host osea = amqp://admin:admin123@rabbitmq:5672/
+      - multiservices-network 
 
 networks:
   multiservices-network:

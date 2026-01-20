@@ -15,10 +15,12 @@ async function bootstrap() {
     }),
   );
 
-    // Swagger Config
+  const port = process.env.PORT ?? 3000;
+  
+  //Swagger Config
   const config = new DocumentBuilder()
     .setTitle('UserServices.API')
-    .setBasePath('http://localhost:${port}/api')
+    .setBasePath(`http://localhost:${port}/api`)
     .setDescription('Documentación de la API con Swagger del microservicio de user')
     .setVersion('1.0')
     .build();
@@ -28,7 +30,6 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 
-  const port = process.env.PORT ?? 3000;
   const logger = new Logger('Bootstrap');
   logger.log(`La aplicación está corriendo en: http://localhost:${port}`);
   logger.log(`Swagger: http://localhost:${port}/api`);
