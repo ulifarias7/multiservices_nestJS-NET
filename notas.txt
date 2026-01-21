@@ -300,3 +300,13 @@ npm run dev:local
 npm run start:dev
 
 docker siempre va a tomar .env
+
+
+----------------------------------------------------------
+cosas por hacer:
+1-primero copiar los volumnes de docker y copiarlos en un directorio 
+2-generar script para que el directorio se mantenga actualizado a la par de los volumenes
+3-terminar el servicio de email
+4-que el servicios de user le pegue al email services
+5-cuando se mande el mail que use rabbit .
+6-que auditory consuma esos eventos.

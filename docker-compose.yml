@@ -72,7 +72,7 @@ services:
   auditory-service:
     container_name: auditory-service-multiservicios
     build:
-      context: ./auditory.API 
+      context: ./auditory-service/src/auditory.API
       dockerfile : Dockerfile
     image : auditory-api:latest
     ports :
