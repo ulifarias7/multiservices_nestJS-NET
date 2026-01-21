@@ -1,0 +1,59 @@
+############################
+# Node / NestJS
+############################
+node_modules
+dist
+coverage
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+############################
+# Environment (SENSIBLE)
+############################
+.env
+.env.*
+.env.local
+.env.example
+
+############################
+# Git
+############################
+.git
+.gitignore
+.gitattributes
+
+############################
+# IDEs / Editors
+############################
+.vscode
+.idea
+*.swp
+*.swo
+
+############################
+# OS
+############################
+.DS_Store
+Thumbs.db
+
+############################
+# Logs
+############################
+logs
+*.log
+
+############################
+# Docker internos (NO el Dockerfile)
+############################
+docker-data
+docker-volumes
+**/postgres_data
+**/mysql_data
+**/sqlserver_data
+
+############################
+# Temp
+############################
+tmp
+temp
