@@ -1,63 +1,79 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable,Inject } from '@nestjs/common';
 import { Email } from '../domain/entities/email.entity';
-import type { IEmailRepository } from '../domain/repositories/email.repository.interface';
-import { InvalidEmailError } from '../domain/errors/invalid.errors';
-import { EmailSendError } from '../domain/errors/email-send.errors';
-
-export interface SendEmailCommand {
-  to: string;
-  subject: string;
-  html?: string;
-  text?: string;
-  cc?: string[];
-  bcc?: string[];
-  attachments?: Array<{ filename: string; content: string }>;
-}
-
-export interface IEmailProvider {
-  send(email: Email, attachments?: Array<{ filename: string; content: string }>): Promise<void>;
-}
+import type { IEmailRepository } from '../domain/entities/repositories/email.repository.interface';
+import { EmailTempleateService } from './email-template.service';
+import * as nodemailer from 'nodemailer';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class EmailService {
-  private readonly logger = new Logger(EmailService.name);
-  
-  constructor(
+ private transporter : nodemailer.transporter;
+
+ constructor(
+  @Inject('IEmailRepository')
     private readonly emailRepository: IEmailRepository,
-    private readonly emailProvider: IEmailProvider,
-  ) {}
-
-  async sendEmail(command: SendEmailCommand): Promise<Email> {
-    this.validateEmail(command.to);
-    command.cc?.forEach((email) => this.validateEmail(email));
-    command.bcc?.forEach((email) => this.validateEmail(email));
-
-    let email = Email.create(command);
-    email = await this.emailRepository.save(email);
-
-    try {
-      this.logger.log(`Sending email to ${command.to}`);
-      await this.emailProvider.send(email, command.attachments);
-
-      email = email.markAsSent();
-      await this.emailRepository.save(email);
-
-      this.logger.log(`Email sent successfully: ${email.id}`);
-      return email;
-    } catch (error) {
-      this.logger.error(`Failed to send email: ${error.message}`, error.stack);
-
-      email = email.markAsFailed(error.message);
-      await this.emailRepository.save(email);
-
-      throw new EmailSendError(error.message);
-    }
+    private readonly templateService: EmailTempleateService,
+    private readonly configService: ConfigService,
+ ){
+    this.transporter = nodemailer.createTransport({
+      host: this.configService.get('SMTP_HOST'),
+      port: this.configService.get('SMTP_PORT'),
+      secure: this.configService.get('SMTP_SECURE') === 'true',
+      auth: {
+        user: this.configService.get('SMTP_USER'),
+        pass: this.configService.get('SMTP_PASS'),
+      },
+    });
   }
 
-  private validateEmail(email: string): void {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      throw new InvalidEmailError(email);
+  // leer este codigo para saber donde ubicar los temopleates o recibirlo directamente
+  async execute(emailData: {
+    to: string;
+    subject: string;
+    body?: string;
+    templateType?: string;
+    templateData?: Record<string, any>;
+    sentAt? : Date
+  }): Promise<Email> {
+    const email = new Email({
+      to: emailData.to,
+      subject: emailData.subject,
+      body: emailData.body || '',
+      templeteType: emailData.templateType,
+      templateData: emailData.templateData,
+      status: 'pending', // cargar los estado en base 
+      createdAt: new Date(),
+      sentAt: emailData.sentAt
+    });
+
+    try {
+      let htmlContent: string;
+      
+      if (emailData.templateType && emailData.templateData) {
+        htmlContent = this.templateService.getTemplate(
+          emailData.templateType,
+          emailData.templateData,
+        );
+        email.body = htmlContent;
+      } else {
+        htmlContent = emailData.body || '';
+      }
+
+      await this.transporter.sendMail({
+        from: this.configService.get('SMTP_FROM'),
+        to: email.to,
+        subject: email.subject,
+        html: htmlContent,
+      });
+
+      email.status = 'sent';
+      email.createdAt = new Date();
+    } catch (error) {
+      email.status = 'failed';
+      email.errorMessage = error.message;
     }
+
+    const savedEmail = await this.emailRepository.save(email);
+    return savedEmail;
   }
 }

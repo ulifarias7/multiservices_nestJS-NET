@@ -26,5 +26,5 @@ import * as fs from 'fs';
   controllers: [UserController],
   providers: [UserService, UserRepository],
   exports: [UserRepository],
-})
+})    
 export class AppModule {}

@@ -1,31 +1,26 @@
-    import { Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { EmailController } from './presentation/email.controller';
-import { EmailService, IEmailProvider } from './application/email.service';
-import { IEmailRepository } from './domain/repositories/email.repository.interface';
-import { EmailRepository } from './Infraestructure/persistence/email.repository';
-import { EmailOrmEntity } from './infraestructure/persistence/email.orm-entity';
-import { SmtpProvider } from './Infraestructure/smtp/smtp.provider';
-import smtpConfig from './Infraestructure/config/smtp.config';
+import { EmailController } from './presentations/email.controller';
+import { EmailService } from './application/email.service';
+import { EmailTempleateService } from './application/email-template.service';
+import { EmailRepository } from './infraestructure/persistence/typeorm/repositories/email.repository';
+import { EmailTypeOrmEntity } from './infraestructure/persistence/typeorm/entities/email.typeorm';
 
 @Module({
   imports: [
-    ConfigModule.forFeature(smtpConfig),
-    TypeOrmModule.forFeature([EmailOrmEntity]),
+    TypeOrmModule.forFeature([EmailTypeOrmEntity]),
+    ConfigModule,
   ],
   controllers: [EmailController],
   providers: [
     EmailService,
+    EmailTempleateService,
     {
       provide: 'IEmailRepository',
       useClass: EmailRepository,
     },
-    {
-      provide: 'IEmailProvider',
-      useClass: SmtpProvider,
-    }
   ],
-  exports: [EmailService],
+  exports: [EmailService], // Para que otros microservicios puedan usar el caso de uso
 })
 export class EmailModule {}
