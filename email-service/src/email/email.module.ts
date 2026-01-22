@@ -4,10 +4,10 @@ import { ConfigModule } from '@nestjs/config';
 import { EmailController } from './presentation/email.controller';
 import { EmailService, IEmailProvider } from './application/email.service';
 import { IEmailRepository } from './domain/repositories/email.repository.interface';
-import { EmailRepository } from './infraestructure/persistence/email.repository';
+import { EmailRepository } from './Infraestructure/persistence/email.repository';
 import { EmailOrmEntity } from './infraestructure/persistence/email.orm-entity';
-import { SmtpProvider } from './infraestructure/smtp/smtp.provider';
-import smtpConfig from './infraestructure/config/smtp.config';
+import { SmtpProvider } from './Infraestructure/smtp/smtp.provider';
+import smtpConfig from './Infraestructure/config/smtp.config';
 
 @Module({
   imports: [

@@ -18,9 +18,9 @@ async function bootstrap() {
   
   //Swagger Config
   const config = new DocumentBuilder()
-    .setTitle('UserServices.API')
+    .setTitle('EmailServices.API')
     .setBasePath(`http://localhost:${port}/api`)
-    .setDescription('Documentación de la API con Swagger del microservicio de user')
+    .setDescription('Documentación de la API con Swagger del microservicio de email')
     .setVersion('1.0')
     .build();
 

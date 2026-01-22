@@ -304,9 +304,60 @@ docker siempre va a tomar .env
 
 ----------------------------------------------------------
 cosas por hacer:
-1-primero copiar los volumnes de docker y copiarlos en un directorio 
-2-generar script para que el directorio se mantenga actualizado a la par de los volumenes
-3-terminar el servicio de email
+1-primero copiar los volumnes de docker y copiarlos en un directorio (listo)
+2-generar script para que el directorio se mantenga actualizado a la par de los volumenes(sincronizar)
+3-hacer el servicio de email
 4-que el servicios de user le pegue al email services
 5-cuando se mande el mail que use rabbit .
 6-que auditory consuma esos eventos.
+ 
+
+------------------------------------------------------------
+
+COMO REUTILIZAR LOS VOLUMENES
+
+(esto para comprimirlos)
+Compress-Archive `
+  -Path C:\docker-volumes-backup\multiservices `
+  -DestinationPath C:\docker-volumes-backup\multiservices-volumes.zip
+
+a) general volumenes de docker
+1-docker volume create multiservices_nestjs-net_pgdata
+2-docker volume create multiservices_nestjs-net_keycloak_data
+3-docker volume create multiservices_nestjs-net_rabbitmq-data
+4-docker volume create multiservices_nestjs-net_minio-data
+
+b) deszipear los volumenes 
+Expand-Archive multiservices-volumes.zip C:\docker-volumes-backup
+
+c)restaurarlos 
+docker run --rm `
+  -v multiservices_nestjs-net_pgdata:/volume `
+  -v C:\Users\ufarias.ENCODELABS\Desktop\multiservices_nestJS-NET\docker-volumes-backup\pgdata `
+  alpine `
+  sh -c "cp -a /backup/. /volume/"
+
+  docker run --rm `
+  -v multiservices_nestjs-net_rabbitmq-data:/volume `
+  -v C:\Users\ufarias.ENCODELABS\Desktop\multiservices_nestJS-NET\docker-volumes-backup\rabbitmq-data `
+  alpine `
+  sh -c "cp -a /backup/. /volume/"
+
+  docker run --rm `
+  -v multiservices_nestjs-net_keycloak_data:/volume `
+  -v C:\Users\ufarias.ENCODELABS\Desktop\multiservices_nestJS-NET\docker-volumes-backup\keycloack_data `
+  alpine `
+  sh -c "cp -a /backup/. /volume/"
+
+  docker run --rm `
+  -v multiservices_nestjs-net_minio-data:/volume `
+  -v C:\Users\ufarias.ENCODELABS\Desktop\multiservices_nestJS-NET\docker-volumes-backup\minio-data `
+  alpine `
+  sh -c "cp -a /backup/. /volume/"
+
+  d) una vez tengas todo levantas el ecosistema 
+  - docker compose up -d
+  - docker compose start (si ya tenes los contenedores)
+
+  tener en cuenta que cada vez que se trabaje con los volumenes hay q actualizarlos antes de terminar
+  irse hasta el directorio del script y tirar el comando .\backup-volumes.ps1

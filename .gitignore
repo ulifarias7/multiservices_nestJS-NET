@@ -55,6 +55,15 @@ docker-volumes/
 **/sqlserver_data/
 
 ############################
+# Docker - Project volumes
+############################
+multiservices_nestjs-net_pgdata/
+multiservices_nestjs-net_keycloak_data/
+multiservices_nestjs-net_minio-data/
+multiservices_nestjs-net_rabbitmq-data/
+docker-volumes-backup/
+
+############################
 # Build artifacts
 ############################
 out/
