@@ -20,7 +20,7 @@ export class EmailRepository implements IEmailRepository {
 
   async findById(id: number): Promise<Email | null> {
     const email = await this.emailRepo.findOne({ where: { id } });
-    return email ? new Email(email) : null;
+    return email ? new Email(email) : null; 
   }
 
   async findAll(): Promise<Email[]> {

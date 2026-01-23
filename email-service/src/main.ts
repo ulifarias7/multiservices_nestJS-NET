@@ -5,7 +5,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const port = process.env.PORT ?? 9000;
+  const port = Number(process.env.PORT) || 4000;
+
     //Swagger Config
   const config = new DocumentBuilder()
     .setTitle('EmailServices.API')
@@ -17,7 +18,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(process.env.PORT ?? 9000);
+  await app.listen(port);
 
   const logger = new Logger('Bootstrap');
   logger.log(`La aplicación está corriendo en: http://localhost:${port}`);

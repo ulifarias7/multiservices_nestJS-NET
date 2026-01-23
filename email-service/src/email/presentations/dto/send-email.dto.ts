@@ -8,12 +8,11 @@ export class SendEmailDto {
   subject: string;
 
   @IsString()
-  @IsOptional()
-  body?: string;
+  htmlContent: string; 
 
   @IsString()
   @IsOptional()
-  templateType?: string; // 'welcome', 'payment', 'document-upload', 'generic'
+  templateType?: string; 
 
   @IsObject()
   @IsOptional()

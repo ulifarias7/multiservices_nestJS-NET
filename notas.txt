@@ -363,91 +363,14 @@ docker run --rm `
   irse hasta el directorio del script y tirar el comando .\backup-volumes.ps1
 
 
-
-  ---------------------------------------------
-  COMO DEBERIAS LLEGAR LAS PETICIONES A EMAIL Service
-  // ========================================
-// 1. ENVIAR EMAIL DE BIENVENIDA
-// POST http://localhost:3000/emails/send
-// ========================================
-{
+que mandar en email send 
+ {
   "to": "usuario@example.com",
-  "subject": "Bienvenido a nuestra plataforma",
+  "subject": "Bienvenido!",
+  "htmlContent": "<h1>Hola Usuario</h1><p>Bienvenido a nuestra plataforma</p>",
   "templateType": "welcome",
   "templateData": {
-    "name": "Juan Pérez",
-    "email": "usuario@example.com",
-    "activationLink": "https://miapp.com/activate/token123"
+    "name": "Usuario",
+    "email": "usuario@example.com"
   }
 }
-
-// ========================================
-// 2. ENVIAR EMAIL DE CONFIRMACIÓN DE PAGO
-// POST http://localhost:3000/emails/send
-// ========================================
-{
-  "to": "cliente@example.com",
-  "subject": "Confirmación de Pago Recibido",
-  "templateType": "payment",
-  "templateData": {
-    "customerName": "María García",
-    "transactionId": "TXN-2024-001234",
-    "amount": "150.00",
-    "date": "22/01/2026",
-    "paymentMethod": "Tarjeta de Crédito"
-  }
-}
-
-// ========================================
-// 3. ENVIAR EMAIL DE DOCUMENTO SUBIDO
-// POST http://localhost:3000/emails/send
-// ========================================
-{
-  "to": "usuario@example.com",
-  "subject": "Nuevo documento subido",
-  "templateType": "document-upload",
-  "templateData": {
-    "userName": "Carlos López",
-    "documentName": "Contrato_Servicios.pdf",
-    "documentType": "PDF",
-    "documentSize": "2.5 MB",
-    "uploadDate": "22/01/2026"
-  }
-}
-
-// ========================================
-// 4. ENVIAR EMAIL GENÉRICO (Personalizado)
-// POST http://localhost:3000/emails/send
-// ========================================
-{
-  "to": "usuario@example.com",
-  "subject": "Notificación importante",
-  "templateType": "generic",
-  "templateData": {
-    "title": "Actualización de Sistema",
-    "message": "Se ha realizado una actualización importante en el sistema.",
-    "Fecha de actualización": "22/01/2026",
-    "Versión": "2.5.0",
-    "Características nuevas": "Mejoras de seguridad y rendimiento"
-  }
-}
-
-// ========================================
-// 5. ENVIAR EMAIL CON HTML PERSONALIZADO
-// POST http://localhost:3000/emails/send
-// ========================================
-{
-  "to": "usuario@example.com",
-  "subject": "Mensaje personalizado",
-  "body": "<h1>Hola!</h1><p>Este es un mensaje <strong>personalizado</strong>.</p>"
-}
-
-// ========================================
-// 6. OBTENER TODOS LOS EMAILS ENVIADOS
-// GET http://localhost:3000/emails
-// ========================================
-
-// ========================================
-// 7. OBTENER UN EMAIL POR ID
-// GET http://localhost:3000/emails/1
-// ========================================

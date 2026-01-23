@@ -2,15 +2,11 @@ import { Controller, Post, Body, Get, Param, HttpStatus } from '@nestjs/common';
 import { EmailService } from '../application/email.service';
 import { SendEmailDto } from './dto/send-email.dto';
 import { EmailResponseDto } from './dto/email-response-dto';
-import type { IEmailRepository } from '../domain/entities/repositories/email.repository.interface';
-import { Inject } from '@nestjs/common';
 
 @Controller('emails')
 export class EmailController {
   constructor(
-    private readonly emailService: EmailService,
-    @Inject('IEmailRepository')
-    private readonly emailRepository: IEmailRepository,
+    private readonly emailService: EmailService
   ) {}
 
   @Post('send')
