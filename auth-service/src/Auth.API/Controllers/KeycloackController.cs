@@ -1,4 +1,4 @@
-﻿using Auth.API.Models;
+﻿using Auth.API.Models.Dto;
 using Auth.API.Services;
 using Keycloak.Net.Core.Models.Root;
 using Microsoft.AspNetCore.Mvc;
@@ -68,6 +68,27 @@ namespace Auth.API.Controllers
         public async Task<ActionResult> CreateGroup([FromBody] CreateGroupDto dto)
         {
             var result = await _keyclaockService.CreateGroupAsync(dto);
+            return Ok(result);
+        }
+
+        [HttpPost("realms")]
+        public async Task<ActionResult> CreateRealm([FromBody] CreateRealmDto dto)
+        {
+            var result = await _keyclaockService.CreateRealm(dto);
+            return Ok(result);
+        }
+
+        [HttpGet("realms-get")]
+        public async Task<ActionResult> GetRealms()
+        {
+            var result = await _keyclaockService.GetRealms();
+            return Ok(result);
+        }
+
+        [HttpGet("groups-get")]
+        public async Task<ActionResult> GroupsGet([FromQuery] string realms)
+        {
+            var result = await _keyclaockService.GroupsGet(realms);
             return Ok(result);
         }
     }

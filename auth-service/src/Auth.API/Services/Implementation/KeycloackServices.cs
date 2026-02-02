@@ -1,11 +1,10 @@
 ﻿using Auth.API.Middleware;
-using Auth.API.Models;
+using Auth.API.Models.Dto;
 using AutoMapper;
 using Keycloak.Net;
-using Keycloak.Net.Models.Groups;
-using Keycloak.Net.Models.RealmsAdmin;
 using Keycloak.Net.Models.Users;
-using System.Text.RegularExpressions;
+using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace Auth.API.Services.Implementation
 {
@@ -14,15 +13,18 @@ namespace Auth.API.Services.Implementation
         private readonly KeycloakClient _keycloakClient;
         private readonly IMapper _mapper;
         private readonly KeycloakWrapper _keycloakWrapper;
+        private HttpClient _HttpClient;
 
         public KeycloackServices(
             KeycloakClient keycloakClient,
             IMapper mapper,
-            KeycloakWrapper keycloakWrapper)
+            KeycloakWrapper keycloakWrapper,
+            HttpClient httpClient)
         {
             _keycloakClient = keycloakClient;
             _mapper = mapper;
             _keycloakWrapper = keycloakWrapper;
+            _HttpClient = httpClient;
         }
 
         public async Task<bool> CreateUserKeycloack(CreateUserKeycloacDto dto, string realms)
@@ -33,19 +35,36 @@ namespace Auth.API.Services.Implementation
             {
                 await _keycloakClient.CreateUserAsync(realms, user);
 
-                var users = await _keycloakClient.GetUsersAsync(realms, username: dto.UserName);
-                var createdUser = users.First();
+                var users = await _keycloakClient.GetUsersAsync(
+                    realms,
+                    username: dto.UserName
+                );
+
+                var createdUser = users.FirstOrDefault()
+                    ?? throw new Exception("No se pudo obtener el usuario creado");
+
+                var token = await GetAdminTokenAsync();
+
+                _HttpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
 
                 foreach (var groupId in dto.GroupIds)
                 {
-                    await _keycloakClient.AddUserToGroupAsync(
-                        realms,
-                        createdUser.Id!,
-                        groupId
+                    var response = await _HttpClient.PutAsync(
+                        $"/admin/realms/{realms}/users/{createdUser.Id}/groups/{groupId}",
+                        null
                     );
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var error = await response.Content.ReadAsStringAsync();
+                        throw new Exception(
+                            $"Error al asignar el usuario al grupo {groupId}: {error}"
+                        );
+                    }
                 }
 
-                //  emitir evento , hacer pegada a user-service ?
+                return true;
             });
         }
 
@@ -143,6 +162,104 @@ namespace Auth.API.Services.Implementation
                 );
 
                 return result;
+            });
+        }
+
+        public async Task<CreateRealmDto> CreateRealm(CreateRealmDto dto)
+        {
+            return await _keycloakWrapper.Execute(async () =>
+            {
+                var token = await GetAdminTokenAsync();
+
+                _HttpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+
+                var response = await _HttpClient.PostAsJsonAsync(
+                    "/admin/realms",
+                    new
+                    {
+                        realm = dto.Realm,
+                        enabled = dto.Enabled
+                    }
+                );
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Error creando realm: {error}");
+                }
+
+                return dto;
+            });
+        }
+
+        private async Task<string> GetAdminTokenAsync()
+        {
+            var form = new Dictionary<string, string>
+            {
+                ["client_id"] = "admin-cli",
+                ["grant_type"] = "password",
+                ["username"] = "admin",
+                ["password"] = "admin"
+            };
+
+            var response = await _HttpClient.PostAsync(
+                "/realms/master/protocol/openid-connect/token",
+                new FormUrlEncodedContent(form)
+            );
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadFromJsonAsync<JsonElement>();
+
+            return json.GetProperty("access_token").GetString()!;
+        }
+
+        public async Task<IEnumerable<RealmsDto>> GetRealms()
+        {
+            return await _keycloakWrapper.Execute(async () =>
+            {
+                var token = await GetAdminTokenAsync();
+
+                _HttpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+
+                var response = await _HttpClient.GetAsync("/admin/realms");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Error obteniendo realms: {error}");
+                }
+
+                var realms = await response.Content
+                    .ReadFromJsonAsync<List<RealmsDto>>();
+
+                return realms!;
+            });
+        }
+
+        public async Task<IEnumerable<GroupsDto>> GroupsGet(string realms)
+        {
+            return await _keycloakWrapper.Execute(async () =>
+            {
+                var token = await GetAdminTokenAsync();
+
+                _HttpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+
+                var response = await _HttpClient.GetAsync($"/admin/realms/{realms}/groups"); 
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Error obteniendo grupos: {error}");
+                }
+
+                var groups = await response.Content
+                    .ReadFromJsonAsync<List<GroupsDto>>();
+
+                return groups!;
             });
         }
     }

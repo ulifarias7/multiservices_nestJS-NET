@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
 
-namespace Auth.API.Models
+namespace Auth.API.Models.Dto
 {
     public class CreateUserKeycloacDto
     {

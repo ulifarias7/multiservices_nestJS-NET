@@ -1,4 +1,4 @@
-﻿namespace Auth.API.Models
+﻿namespace Auth.API.Models.Dto
 {
     public class ResetPasswordDto
     {

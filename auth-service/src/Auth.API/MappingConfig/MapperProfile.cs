@@ -1,4 +1,4 @@
-﻿using Auth.API.Models;
+﻿using Auth.API.Models.Dto;
 using AutoMapper;
 using Keycloak.Net.Models.Users;
 

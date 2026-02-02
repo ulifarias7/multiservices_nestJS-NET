@@ -1,4 +1,4 @@
-﻿using Auth.API.Models;
+﻿using Auth.API.Models.Dto;
 
 namespace Auth.API.Services
 {
@@ -10,6 +10,9 @@ namespace Auth.API.Services
         Task<bool> ResetPassword(ResetPasswordDto body, string realms);
         Task<string> UpdateUserKeycloak(UpdateUserKeycloakDto body, string realms);
         Task<bool> CreateGroupAsync(CreateGroupDto dto);
+        Task<CreateRealmDto> CreateRealm(CreateRealmDto dto);
+        Task<IEnumerable<RealmsDto>> GetRealms();
+        Task<IEnumerable<GroupsDto>> GroupsGet(string realms);
         Task<IEnumerable<UserKeycloackDto>> SearchUsers(string realm,
         string? search = null,
         string? email = null,

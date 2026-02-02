@@ -25,6 +25,12 @@ builder.Services.AddSingleton(provider =>
     return new KeycloakClient(url, adminUser, adminPass, new KeycloakOptions(authenticationRealm: adminRealm));
 });
 
+//http client keycloack
+builder.Services.AddHttpClient<KeycloackServices>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Keycloak:ServerUrl"]!);
+}); 
+
 //services 
 builder.Services.AddScoped<IKeycloackServices, KeycloackServices>();
 
