@@ -1,5 +1,6 @@
 ﻿using Auth.API.Models;
 using Auth.API.Services;
+using Keycloak.Net.Core.Models.Root;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Auth.API.Controllers
@@ -59,7 +60,14 @@ namespace Auth.API.Controllers
         [FromQuery] string? firstName,
         [FromQuery] string? lastName)
         {
-            var result = await _keyclaockService.SearchUsers(realm,search,email,username,firstName,lastName);
+            var result = await _keyclaockService.SearchUsers(realm, search, email, username, firstName, lastName);
+            return Ok(result);
+        }
+
+        [HttpPost("groups")]
+        public async Task<ActionResult> CreateGroup([FromBody] CreateGroupDto dto)
+        {
+            var result = await _keyclaockService.CreateGroupAsync(dto);
             return Ok(result);
         }
     }

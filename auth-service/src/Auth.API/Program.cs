@@ -51,14 +51,6 @@ if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "local
     app.UseSwaggerUI();
 }
 
-////Log URL del swagger
-//var logger = app.Services.GetRequiredService<ILogger<Program>>();
-//var httpPort = builder.Configuration["Swagger:HTTP-PORT"];
-//var httpsPort = builder.Configuration["Swagger:HTTPS-PORT"];
-//var port = httpPort ?? httpsPort;
-//logger.LogInformation($"Swagger disponible en: http://localhost:{port}/swagger", port);
-
-
 //logs del kestrel que expone el puerto 
 app.Lifetime.ApplicationStarted.Register(() =>
     {

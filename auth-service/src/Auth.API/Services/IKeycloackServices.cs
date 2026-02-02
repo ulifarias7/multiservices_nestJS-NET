@@ -9,6 +9,7 @@ namespace Auth.API.Services
         Task<bool> DeleteUserKeycloak(string id, string realms);
         Task<bool> ResetPassword(ResetPasswordDto body, string realms);
         Task<string> UpdateUserKeycloak(UpdateUserKeycloakDto body, string realms);
+        Task<bool> CreateGroupAsync(CreateGroupDto dto);
         Task<IEnumerable<UserKeycloackDto>> SearchUsers(string realm,
         string? search = null,
         string? email = null,

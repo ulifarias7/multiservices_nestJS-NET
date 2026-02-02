@@ -23,6 +23,9 @@ namespace Auth.API.Models
         [FromForm(Name = "enabled")]
         public bool? Enabled { get; set; }
 
+        [FromForm(Name = "groups")]
+        public List<string> GroupIds { get; set; } = new();
+
         [FromForm(Name = "credentials")]
         public CredentialDto CredentialDto { get; set; }
 

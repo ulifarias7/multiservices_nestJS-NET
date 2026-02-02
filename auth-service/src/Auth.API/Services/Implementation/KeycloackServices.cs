@@ -2,7 +2,10 @@
 using Auth.API.Models;
 using AutoMapper;
 using Keycloak.Net;
+using Keycloak.Net.Models.Groups;
+using Keycloak.Net.Models.RealmsAdmin;
 using Keycloak.Net.Models.Users;
+using System.Text.RegularExpressions;
 
 namespace Auth.API.Services.Implementation
 {
@@ -28,7 +31,19 @@ namespace Auth.API.Services.Implementation
 
             return await _keycloakWrapper.Execute(async () =>
             {
-                return await _keycloakClient.CreateUserAsync(realms, user);
+                await _keycloakClient.CreateUserAsync(realms, user);
+
+                var users = await _keycloakClient.GetUsersAsync(realms, username: dto.UserName);
+                var createdUser = users.First();
+
+                foreach (var groupId in dto.GroupIds)
+                {
+                    await _keycloakClient.AddUserToGroupAsync(
+                        realms,
+                        createdUser.Id!,
+                        groupId
+                    );
+                }
 
                 //  emitir evento , hacer pegada a user-service ?
             });
@@ -110,6 +125,24 @@ namespace Auth.API.Services.Implementation
                 );
 
                 return _mapper.Map<IEnumerable<UserKeycloackDto>>(users);
+            });
+        }
+
+        public async Task<bool> CreateGroupAsync(CreateGroupDto dto)
+        {
+            var group = new Keycloak.Net.Models.Groups.Group
+            {
+                Name = dto.Name
+            };
+
+            return await _keycloakWrapper.Execute(async () =>
+            {
+                var result = await _keycloakClient.CreateGroupAsync(
+                    realm: dto.Realms,
+                    group
+                );
+
+                return result;
             });
         }
     }
