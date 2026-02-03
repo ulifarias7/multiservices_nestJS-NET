@@ -2,6 +2,7 @@
 using Auth.API.Models.Dto;
 using AutoMapper;
 using Keycloak.Net;
+using Keycloak.Net.Models.RealmsAdmin;
 using Keycloak.Net.Models.Users;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -213,6 +214,23 @@ namespace Auth.API.Services.Implementation
             var json = await response.Content.ReadFromJsonAsync<JsonElement>();
 
             return json.GetProperty("access_token").GetString()!;
+        }
+
+
+        public async Task<RealmsDto> GetRealm(RealmsDto dto)
+        {
+            var realm = new Realm()
+            {
+                Id = dto.Id,
+                _Realm = dto.Realm,
+                Enabled = dto.Enabled
+            };
+
+            return await _keycloakWrapper.Execute(async () =>
+            {
+                await _keycloakClient.GetRealmAsync(dto.Realm);
+                return dto;
+            });
         }
 
         public async Task<IEnumerable<RealmsDto>> GetRealms()
