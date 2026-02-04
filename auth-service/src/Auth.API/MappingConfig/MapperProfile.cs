@@ -1,5 +1,8 @@
 ﻿using Auth.API.Models.Dto;
 using AutoMapper;
+using Keycloak.AuthServices.Sdk.Admin.Models;
+using Keycloak.Net.Models.Groups;
+using Keycloak.Net.Models.RealmsAdmin;
 using Keycloak.Net.Models.Users;
 
 namespace Auth.API.MappingConfig
@@ -31,6 +34,18 @@ namespace Auth.API.MappingConfig
 
             //editar usuario
             CreateMap<UpdateUserKeycloakDto, User>();
+
+            //Realms mapping
+            CreateMap<Realm, RealmsDto>()
+                .ForMember(dest => dest.Realm,
+                      opt => opt.MapFrom(src => src._Realm))
+                .ForMember(dest => dest.DisplayName,
+                      opt => opt.MapFrom(src => src.DisplayName));
+
+            //Groups mapping
+            CreateMap<Group, GroupsDto>()
+                .ForMember(dest => dest.SubGroups, opt => opt.Ignore());
+
         }
     }
 }

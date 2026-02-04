@@ -173,10 +173,6 @@ networks:
 
 volumes:
   minio-data: 
-    external: true
   pgdata:
-    external: true
   keycloak_data:
-    external: true
   rabbitmq-data:
-    external: true

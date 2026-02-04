@@ -47,6 +47,16 @@ builder.Services.AddAutoMapper(cfg =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -55,6 +65,7 @@ if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "local
     //app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseHttpsRedirection();
 }
 
 //logs del kestrel que expone el puerto 
@@ -69,7 +80,7 @@ app.Lifetime.ApplicationStarted.Register(() =>
 );
 
 app.UseMiddleware<KeycloakExceptionMiddleware>();
-app.UseHttpsRedirection();
+app.UseCors("AllowAll");
 app.UseRouting();
 //app.UseAuthorized();
 app.MapControllers();

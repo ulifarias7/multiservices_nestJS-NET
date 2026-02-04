@@ -2,10 +2,10 @@
 using Auth.API.Models.Dto;
 using AutoMapper;
 using Keycloak.Net;
+using Keycloak.Net.Models.Groups;
 using Keycloak.Net.Models.RealmsAdmin;
+using Keycloak.Net.Models.Roles;
 using Keycloak.Net.Models.Users;
-using System.Net.Http.Headers;
-using System.Text.Json;
 
 namespace Auth.API.Services.Implementation
 {
@@ -14,21 +14,18 @@ namespace Auth.API.Services.Implementation
         private readonly KeycloakClient _keycloakClient;
         private readonly IMapper _mapper;
         private readonly KeycloakWrapper _keycloakWrapper;
-        private HttpClient _HttpClient;
 
         public KeycloackServices(
             KeycloakClient keycloakClient,
             IMapper mapper,
-            KeycloakWrapper keycloakWrapper,
-            HttpClient httpClient)
+            KeycloakWrapper keycloakWrapper)
         {
             _keycloakClient = keycloakClient;
             _mapper = mapper;
             _keycloakWrapper = keycloakWrapper;
-            _HttpClient = httpClient;
         }
 
-        public async Task<bool> CreateUserKeycloack(CreateUserKeycloacDto dto, string realms)
+        public async Task<string> CreateUserKeycloack(CreateUserKeycloacDto dto, string realms)
         {
             var user = _mapper.Map<User>(dto);
 
@@ -44,28 +41,7 @@ namespace Auth.API.Services.Implementation
                 var createdUser = users.FirstOrDefault()
                     ?? throw new Exception("No se pudo obtener el usuario creado");
 
-                var token = await GetAdminTokenAsync();
-
-                _HttpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", token);
-
-                foreach (var groupId in dto.GroupIds)
-                {
-                    var response = await _HttpClient.PutAsync(
-                        $"/admin/realms/{realms}/users/{createdUser.Id}/groups/{groupId}",
-                        null
-                    );
-
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        var error = await response.Content.ReadAsStringAsync();
-                        throw new Exception(
-                            $"Error al asignar el usuario al grupo {groupId}: {error}"
-                        );
-                    }
-                }
-
-                return true;
+                return createdUser.Id;
             });
         }
 
@@ -157,12 +133,36 @@ namespace Auth.API.Services.Implementation
 
             return await _keycloakWrapper.Execute(async () =>
             {
-                var result = await _keycloakClient.CreateGroupAsync(
-                    realm: dto.Realms,
-                    group
-                );
+                if (!string.IsNullOrEmpty(dto.ParentGroupId))
+                {
+                    return await _keycloakClient.SetOrCreateGroupChildAsync(
+                        realm: dto.Realms,
+                        groupId: dto.ParentGroupId,
+                        group: group
+                    );
+                }
 
-                return result;
+                return await _keycloakClient.CreateGroupAsync(
+                    realm: dto.Realms,
+                    group: group
+                );
+            });
+        }
+
+        public async Task<bool> CreateSubGroupAsync(CreateSubGroupDto dto)
+        {
+            var group = new Group
+            {
+                Name = dto.Name
+            };
+
+            return await _keycloakWrapper.Execute(async () =>
+            {
+                return await _keycloakClient.SetOrCreateGroupChildAsync(
+                    realm: dto.Realm,
+                    groupId: dto.ParentGroupId,
+                    group: group
+                );
             });
         }
 
@@ -170,52 +170,23 @@ namespace Auth.API.Services.Implementation
         {
             return await _keycloakWrapper.Execute(async () =>
             {
-                var token = await GetAdminTokenAsync();
+                var realm = new Realm
+                {
+                    _Realm = dto.Realm,
+                    Enabled = dto.Enabled
+                };
 
-                _HttpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", token);
-
-                var response = await _HttpClient.PostAsJsonAsync(
-                    "/admin/realms",
-                    new
-                    {
-                        realm = dto.Realm,
-                        enabled = dto.Enabled
-                    }
+                var success = await _keycloakClient.ImportRealmAsync(
+                    realm: "master",
+                    rep: realm
                 );
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    var error = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Error creando realm: {error}");
-                }
+                if (!success)
+                    throw new Exception("Error creando el realm en Keycloak");
 
                 return dto;
             });
         }
-
-        private async Task<string> GetAdminTokenAsync()
-        {
-            var form = new Dictionary<string, string>
-            {
-                ["client_id"] = "admin-cli",
-                ["grant_type"] = "password",
-                ["username"] = "admin",
-                ["password"] = "admin"
-            };
-
-            var response = await _HttpClient.PostAsync(
-                "/realms/master/protocol/openid-connect/token",
-                new FormUrlEncodedContent(form)
-            );
-
-            response.EnsureSuccessStatusCode();
-
-            var json = await response.Content.ReadFromJsonAsync<JsonElement>();
-
-            return json.GetProperty("access_token").GetString()!;
-        }
-
 
         public async Task<RealmsDto> GetRealm(RealmsDto dto)
         {
@@ -235,50 +206,123 @@ namespace Auth.API.Services.Implementation
 
         public async Task<IEnumerable<RealmsDto>> GetRealms()
         {
+            var realm = "master";
             return await _keycloakWrapper.Execute(async () =>
             {
-                var token = await GetAdminTokenAsync();
-
-                _HttpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", token);
-
-                var response = await _HttpClient.GetAsync("/admin/realms");
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var error = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Error obteniendo realms: {error}");
-                }
-
-                var realms = await response.Content
-                    .ReadFromJsonAsync<List<RealmsDto>>();
-
-                return realms!;
+                var realms = await _keycloakClient.GetRealmsAsync(realm);
+                return _mapper.Map<IEnumerable<RealmsDto>>(realms);
             });
         }
 
-        public async Task<IEnumerable<GroupsDto>> GroupsGet(string realms)
+        public async Task<IEnumerable<GroupsDto>> GroupsGet(string realm)
         {
             return await _keycloakWrapper.Execute(async () =>
             {
-                var token = await GetAdminTokenAsync();
+                var groups = await _keycloakClient.GetGroupHierarchyAsync(
+                    realm,
+                    first: null,
+                    max: null,
+                    search: null
+                );
 
-                _HttpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", token);
-
-                var response = await _HttpClient.GetAsync($"/admin/realms/{realms}/groups"); 
-
-                if (!response.IsSuccessStatusCode)
+                var result = new List<GroupsDto>();
+                foreach (var group in groups)
                 {
-                    var error = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Error obteniendo grupos: {error}");
+                    var dto = _mapper.Map<GroupsDto>(group);
+                    dto.SubGroups = await GetSubGroupsRecursive(realm, group.Id);
+                    result.Add(dto);
                 }
 
-                var groups = await response.Content
-                    .ReadFromJsonAsync<List<GroupsDto>>();
+                return result;
+            });
+        }
 
-                return groups!;
+        private async Task<List<GroupsDto>> GetSubGroupsRecursive(string realm, string groupId)
+        {
+            var children = await _keycloakClient.GetGroupChildrenAsync(realm, groupId);
+            var result = new List<GroupsDto>();
+
+            foreach (var child in children)
+            {
+                var dto = _mapper.Map<GroupsDto>(child);
+                dto.SubGroups = await GetSubGroupsRecursive(realm, child.Id);
+                result.Add(dto);
+            }
+
+            return result;
+        }
+
+        public async Task<GroupsDto> GroupById(string realm,string groupId)
+        {
+            return await _keycloakWrapper.Execute(async () =>
+            {
+                var group = await _keycloakClient.GetGroupAsync(
+                    realm,
+                    groupId
+                );
+
+                return _mapper.Map<GroupsDto>(group);
+            });
+        }
+
+        public async Task<bool> CreateRealmRoleAsync(string realm, string roleName)
+        {
+            var role = new Role
+            {
+                Name = roleName
+            };
+
+            return await _keycloakWrapper.Execute(async () =>
+            {
+                return await _keycloakClient.CreateRoleAsync(realm, role);
+            });
+        }
+
+        public async Task<bool> AddUserToGroupAsync(string realm, string userId, string groupId)
+        {
+            return await _keycloakWrapper.Execute(async () =>
+            {
+                var group = await _keycloakClient.GetGroupAsync(
+                        realm,
+                        groupId
+                    );
+
+                await _keycloakClient.UpdateUserGroupAsync(
+                    realm,
+                    userId,
+                    groupId,
+                    group
+                );
+
+                return true;
             });
         }
     }
 }
+ //asignar los roles a las subcarpetas
+
+//sidrel-one
+//│
+//├── empresas
+//│   ├── empresa-123
+//│   │   ├── admin
+//│   │   ├── usuario
+//│   │   └── visualizador
+//│   │
+//│   ├── empresa-456
+//│   │   ├── admin
+//│   │   ├── usuario
+//│   │   └── visualizador
+//│
+//├── ministerio
+//│   ├── admin
+//│   ├── inspector
+//│   ├── usuario
+//│   └── visualizador
+
+//¿Por qué así?
+//Porque después podés preguntar cosas como:
+//“¿Este usuario es admin de esta empresa?”
+//“¿Pertenece al ministerio?”
+//“¿Es inspector?”
+//sin lógica rara.

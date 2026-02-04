@@ -322,10 +322,10 @@ Compress-Archive `
   -DestinationPath C:\docker-volumes-backup\multiservices-volumes.zip
 
 a) general volumenes de docker
-1-docker volume create multiservices_nestjs-net_pgdata
-2-docker volume create multiservices_nestjs-net_keycloak_data
-3-docker volume create multiservices_nestjs-net_rabbitmq-data
-4-docker volume create multiservices_nestjs-net_minio-data
+docker volume create pgdata
+docker volume create minio-data
+docker volume create keycloak_data
+docker volume create rabbitmq-data
 
 b) deszipear los volumenes 
 Expand-Archive multiservices-volumes.zip C:\docker-volumes-backup
