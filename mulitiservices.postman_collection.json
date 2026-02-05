@@ -1,0 +1,309 @@
+{
+  "info": {
+    "_postman_id": "a2267f0c-bf0b-4fd0-a2a2-1d7a8610fede",
+    "name": "mulitiservices",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "45132972"
+  },
+  "item": [
+    {
+      "name": "document-service",
+      "item": []
+    },
+    {
+      "name": "user-service",
+      "item": []
+    },
+    {
+      "name": "auth-services",
+      "item": [
+        {
+          "name": "keycloack",
+          "item": [
+            {
+              "name": "creacion de usuario",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJGVjBwd00tZGpEZENnQnREX2VGcEZPT3NudTMxWmM0eUZnMmN0d1JndzVzIn0.eyJleHAiOjE3NjUyOTA3MTIsImlhdCI6MTc2NTI5MDY1MiwianRpIjoib25sdHJvOjNlZTViMjA2LTZmNmMtYWNlZi00ZjE0LWFjM2ZkZWY2NDc5OSIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9yZWFsbXMvbWFzdGVyIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiYWRtaW4tY2xpIiwic2lkIjoiZDQ5ZGZlZGQtZTg5Zi0zNWU1LTJlYzAtMzEwY2Q0NTcwYTNjIiwic2NvcGUiOiJlbWFpbCBwcm9maWxlIn0.azoHDgIAWKunI19BdW6tk4jvU8Gy9ZiwSK8k0JnqlqtgGpvMc1dBqNFIiW8Q_jB689f5nteptDpAhzjhZJ1e4AWrsQQad65Nk3MQZsiqq9IqsjQw_LDvRd8H26YLCS4mzJSi6Qktla2UKsECII5yfP6ujbC4ba8wYxlDxArZdlYh4C-9tz18CKjjyMjZj40n7VASHYh35EqhHl_BuRXMH2l6EwzSQG0a-J8nE2aljmmJB6jGn-BLHcEWgvUV9Cx_iqYCUM8tPBoC28irdtrA9LY-XJESzXZZqrslZeAwSDk85LxGVjuEdJDXiQ868imbgi6PJF_97bACwzR189YUfA",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"username\":\"ulises\",\r\n  \"firstName\": \"farias\",\r\n  \"email\": \"keyclaock@gmail.com\",\r\n  \"emailVerified\" : true,\r\n  \"lastName\": \"services\",\r\n  \"enabled\": true,\r\n  \"credentials\": [\r\n    {\r\n      \"type\": \"password\",\r\n      \"value\": \"123\",\r\n      \"temporary\": false\r\n    }\r\n  ]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:8082/admin/realms/auth-service/users",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8082",
+                  "path": [
+                    "admin",
+                    "realms",
+                    "auth-service",
+                    "users"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "login administrador",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "key": "client_secret",
+                      "value": "e93a4b55-9826-471e-b73a-81d6b8fc2c4f",
+                      "type": "text",
+                      "uuid": "f93627b5-afb1-495d-94d6-5c4c9855eac1"
+                    },
+                    {
+                      "key": "grant_type",
+                      "value": "password",
+                      "type": "text",
+                      "uuid": "b042ef46-1ca1-42d7-96f8-2b54c16e48d2"
+                    },
+                    {
+                      "key": "client_id",
+                      "value": "admin-cli",
+                      "type": "text",
+                      "uuid": "27eb7c18-86f5-4afa-9787-7e9204220e77"
+                    },
+                    {
+                      "key": "username",
+                      "value": "admin",
+                      "type": "text",
+                      "uuid": "3b8d0735-11eb-4760-b62e-8c1224f2798d"
+                    },
+                    {
+                      "key": "password",
+                      "value": "admin",
+                      "type": "text",
+                      "uuid": "1f5f3626-2cd8-4f42-8d47-fc1d0e4ab7e9"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "http://localhost:8082/realms/master/protocol/openid-connect/token",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8082",
+                  "path": [
+                    "realms",
+                    "master",
+                    "protocol",
+                    "openid-connect",
+                    "token"
+                  ],
+                  "query": [
+                    {
+                      "key": "grant_type",
+                      "value": "password",
+                      "disabled": true
+                    },
+                    {
+                      "key": "client_secret",
+                      "value": "e93a4b55-9826-471e-b73a-81d6b8fc2c4f",
+                      "disabled": true
+                    },
+                    {
+                      "key": "client_id",
+                      "value": "admin-cli",
+                      "disabled": true
+                    },
+                    {
+                      "key": "username",
+                      "value": "admin",
+                      "type": "text",
+                      "disabled": true
+                    },
+                    {
+                      "key": "password",
+                      "value": "admin",
+                      "type": "text",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "login del usuario en el reino",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJGVjBwd00tZGpEZENnQnREX2VGcEZPT3NudTMxWmM0eUZnMmN0d1JndzVzIn0.eyJleHAiOjE3NjUyOTEwODIsImlhdCI6MTc2NTI5MTAyMiwianRpIjoib25sdHJvOjZlMjBmZWM2LWI3Y2YtN2E4My0yZWM4LWViY2Q2YTc1OGMxMiIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9yZWFsbXMvbWFzdGVyIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiYWRtaW4tY2xpIiwic2lkIjoiMmZmYjU4NjEtZTIyMy02MDk5LWFjYWYtN2E4OGY1NjVmMzI1Iiwic2NvcGUiOiJlbWFpbCBwcm9maWxlIn0.W7QOVNcAHf6JYbIZ_Hl6ZCmY8bSjjruhvCFnKLwcFAEz35s-N9IQnrQ-9Ewr_KdrxmYaOxjOwd7qV0y7j2b7BvSDvg2jBd41cCXQtVeHzL07CDO6VVw7WtJkAMu_2cMCx27muE5_ecSUVizKVYNLvE74GX4n2_tnUPhpNEtkQiO4tzBUP63SLhwjymNtlclzGjJ0e9ivfcG075sYqmOyqvObFnHszAiPkdtk02U2bjysu1ZwsZBcGEvLgjtnwupFUEzWfrM-V2MUvTuHrIYESIrGrHqG8sFXHfyQWQdIcrXtF0GZnMDyKLgDuMV4MKR_cGp20sbXTRF3Hg8CV8OzSA",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "key": "grant_type",
+                      "value": "password",
+                      "type": "text",
+                      "uuid": "bcfc5116-194f-4e15-843f-12a364348bfc"
+                    },
+                    {
+                      "key": "client_id",
+                      "value": "admin-cli",
+                      "type": "text",
+                      "uuid": "bf1c9dde-b590-40c6-a6e4-368fa1399962"
+                    },
+                    {
+                      "key": "username",
+                      "value": "ulises",
+                      "type": "text",
+                      "uuid": "5ceb1027-b5c3-4b42-b04e-71b28d52d60d"
+                    },
+                    {
+                      "key": "password",
+                      "value": "123",
+                      "type": "text",
+                      "uuid": "863d0230-08d2-4410-8fb9-98181c488f2a"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "http://localhost:8082/realms/auth-service/protocol/openid-connect/token",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8082",
+                  "path": [
+                    "realms",
+                    "auth-service",
+                    "protocol",
+                    "openid-connect",
+                    "token"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "reset passwor user",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJGVjBwd00tZGpEZENnQnREX2VGcEZPT3NudTMxWmM0eUZnMmN0d1JndzVzIn0.eyJleHAiOjE3NjUyOTEwODIsImlhdCI6MTc2NTI5MTAyMiwianRpIjoib25sdHJvOjZlMjBmZWM2LWI3Y2YtN2E4My0yZWM4LWViY2Q2YTc1OGMxMiIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9yZWFsbXMvbWFzdGVyIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiYWRtaW4tY2xpIiwic2lkIjoiMmZmYjU4NjEtZTIyMy02MDk5LWFjYWYtN2E4OGY1NjVmMzI1Iiwic2NvcGUiOiJlbWFpbCBwcm9maWxlIn0.W7QOVNcAHf6JYbIZ_Hl6ZCmY8bSjjruhvCFnKLwcFAEz35s-N9IQnrQ-9Ewr_KdrxmYaOxjOwd7qV0y7j2b7BvSDvg2jBd41cCXQtVeHzL07CDO6VVw7WtJkAMu_2cMCx27muE5_ecSUVizKVYNLvE74GX4n2_tnUPhpNEtkQiO4tzBUP63SLhwjymNtlclzGjJ0e9ivfcG075sYqmOyqvObFnHszAiPkdtk02U2bjysu1ZwsZBcGEvLgjtnwupFUEzWfrM-V2MUvTuHrIYESIrGrHqG8sFXHfyQWQdIcrXtF0GZnMDyKLgDuMV4MKR_cGp20sbXTRF3Hg8CV8OzSA",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"type\": \"password\",\r\n  \"value\": \"123456\",\r\n  \"temporary\": false\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:8082/admin/realms/auth-service/users/{{id}}/reset-password",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8082",
+                  "path": [
+                    "admin",
+                    "realms",
+                    "auth-service",
+                    "users",
+                    "{{id}}",
+                    "reset-password"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "info user",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJGVjBwd00tZGpEZENnQnREX2VGcEZPT3NudTMxWmM0eUZnMmN0d1JndzVzIn0.eyJleHAiOjE3NjUzMDE1MjcsImlhdCI6MTc2NTMwMTQ2NywianRpIjoib25sdHJvOmFhYWYyOTk1LWY5MmEtMjdmNy1hMjFlLWQ0NzdmM2FiMDFkZiIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9yZWFsbXMvbWFzdGVyIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiYWRtaW4tY2xpIiwic2lkIjoiODcwMDczM2EtOGI3Yi1jNzJhLTFjYzEtMjY0NzYyNjA0ZjQ3Iiwic2NvcGUiOiJlbWFpbCBwcm9maWxlIn0.G5SMfHwzU03MWz6c-DpfkJsxm5wHQmCSQhrydOakgDfIs2cd7EAqruCCE5Mw1BPjU-nnXT76SqfDIQfVewOSZ6pKATF7TujmSNpuTKxWudR49qShmX1LXzRgQ7AIsMNNkpuIEZj2qhrAcXe3a5kLA1lUS3M5FOAX6ucbYVJ1LSSgFIH66HGTk_qi4fC9sIBXUiY_5q5bO3z_rGdYVlA_6MYzBw_NCZ1Jykpu3ARQamQg5-3EVPINtjxsakXuybLLyPhyEq8Birukb3SlrlxgSjPGkO_phNW4tn0k2wDWtoD8JoLD9N4XdOPCKhh92DPkuloFZzF0gwgcDNCHJxXnuw",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "key": "username",
+                      "value": "ulises",
+                      "type": "text",
+                      "uuid": "b68d8ee9-1d9f-4931-a2ae-cc878e5f694d",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "http://localhost:8082/admin/realms/auth-service/users/bc79f12b-f200-417c-81be-437ac7a004de",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8082",
+                  "path": [
+                    "admin",
+                    "realms",
+                    "auth-service",
+                    "users",
+                    "bc79f12b-f200-417c-81be-437ac7a004de"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

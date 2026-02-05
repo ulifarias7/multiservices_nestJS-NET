@@ -13,10 +13,10 @@ namespace Auth.API.Services
         Task<CreateRealmDto> CreateRealm(CreateRealmDto dto);
         Task<IEnumerable<RealmsDto>> GetRealms();
         Task<IEnumerable<GroupsDto>> GroupsGet(string realms);
-        Task<bool> CreateSubGroupAsync(CreateSubGroupDto dto);
         Task<bool> CreateRealmRoleAsync(string realm, string roleName);
         Task<bool> AddUserToGroupAsync(string realm, string userId, string groupId);
         Task<GroupsDto> GroupById(string realm, string groupId);
+        Task<bool> AssignRoleToGroupAsync(string realm, string groupId, string roleName);
         Task<IEnumerable<UserKeycloackDto>> SearchUsers(string realm,
         string? search = null,
         string? email = null,

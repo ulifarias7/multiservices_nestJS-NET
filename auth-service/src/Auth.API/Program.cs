@@ -20,7 +20,7 @@ builder.Services.AddSingleton(provider =>
     var url = config["Keycloak:ServerUrl"];
     var adminUser = config["Keycloak:AdminUsername"];
     var adminPass = config["Keycloak:AdminPassword"];
-    var adminRealm = "master";
+    var adminRealm = config["Keycloak:AdminRealm"] ?? "master";
 
     return new KeycloakClient(url, adminUser, adminPass, new KeycloakOptions(authenticationRealm: adminRealm));
 });
@@ -29,7 +29,7 @@ builder.Services.AddSingleton(provider =>
 builder.Services.AddHttpClient<KeycloackServices>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Keycloak:ServerUrl"]!);
-}); 
+});
 
 //services 
 builder.Services.AddScoped<IKeycloackServices, KeycloackServices>();

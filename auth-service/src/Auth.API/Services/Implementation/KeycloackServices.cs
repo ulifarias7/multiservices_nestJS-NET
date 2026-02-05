@@ -41,7 +41,46 @@ namespace Auth.API.Services.Implementation
                 var createdUser = users.FirstOrDefault()
                     ?? throw new Exception("No se pudo obtener el usuario creado");
 
+                if (!string.IsNullOrEmpty(dto.GroupId))
+                {
+                    var group = await _keycloakClient.GetGroupAsync(realms, dto.GroupId);
+
+                    await _keycloakClient.UpdateUserGroupAsync(
+                        realms,
+                        createdUser.Id,
+                        dto.GroupId,
+                        group
+                    );
+                }
+
+                if (!string.IsNullOrEmpty(dto.RoleName))
+                {
+                    var role = await _keycloakClient.GetRoleByNameAsync(realms, dto.RoleName);
+
+                    await _keycloakClient.AddRealmRoleMappingsToUserAsync(
+                        realms,
+                        createdUser.Id,
+                        new[] { role }
+                    );
+                }
+
                 return createdUser.Id;
+            });
+        }
+
+        public async Task<bool> AssignRoleToGroupAsync(string realm, string groupId, string roleName)
+        {
+            return await _keycloakWrapper.Execute(async () =>
+            {
+                var role = await _keycloakClient.GetRoleByNameAsync(realm, roleName);
+
+                await _keycloakClient.AddRealmRoleMappingsToGroupAsync(
+                    realm,
+                    groupId,
+                    new[] { role }
+                );
+
+                return true;
             });
         }
 
@@ -144,23 +183,6 @@ namespace Auth.API.Services.Implementation
 
                 return await _keycloakClient.CreateGroupAsync(
                     realm: dto.Realms,
-                    group: group
-                );
-            });
-        }
-
-        public async Task<bool> CreateSubGroupAsync(CreateSubGroupDto dto)
-        {
-            var group = new Group
-            {
-                Name = dto.Name
-            };
-
-            return await _keycloakWrapper.Execute(async () =>
-            {
-                return await _keycloakClient.SetOrCreateGroupChildAsync(
-                    realm: dto.Realm,
-                    groupId: dto.ParentGroupId,
                     group: group
                 );
             });
@@ -299,26 +321,37 @@ namespace Auth.API.Services.Implementation
         }
     }
 }
- //asignar los roles a las subcarpetas
 
-//sidrel-one
+//sidrel - one(Realm)
 //│
-//├── empresas
-//│   ├── empresa-123
-//│   │   ├── admin
-//│   │   ├── usuario
-//│   │   └── visualizador
+//├── Roles(Realm Roles)
+//│   ├── empresa_admin
+//│   ├── empresa_usuario
+//│   ├── empresa_visualizador
+//│   ├── ministerio_admin
+//│   ├── ministerio_inspector
+//│   └── ministerio_usuario
+//│
+//├── Groups
+//│   ├── empresas
+//│   │   └── empresa-123
+//│   │       ├── admin  ← Usuario "juan.perez" se asigna AQUÍ
+//│   │       │   └── Roles asignados al grupo: [empresa_admin]
+//│   │       ├── usuario
+//│   │       │   └── Roles: [empresa_usuario]
+//│   │       └── visualizador
+//│   │           └── Roles: [empresa_visualizador]
 //│   │
-//│   ├── empresa-456
-//│   │   ├── admin
-//│   │   ├── usuario
-//│   │   └── visualizador
+//│   └── ministerio
+//│       ├── admin
+//│       ├── inspector
+//│       └── usuario
 //│
-//├── ministerio
-//│   ├── admin
-//│   ├── inspector
-//│   ├── usuario
-//│   └── visualizador
+//└── Users
+//    └── juan.perez
+//        ├── Email: juan @empresa123.com
+//        ├── Groups: [/empresas/empresa-123/admin]  ← Pertenece a este grupo
+//        └── Effective Roles: [empresa_admin]  ← Heredado del grupo
 
 //¿Por qué así?
 //Porque después podés preguntar cosas como:
@@ -326,3 +359,6 @@ namespace Auth.API.Services.Implementation
 //“¿Pertenece al ministerio?”
 //“¿Es inspector?”
 //sin lógica rara.
+
+//agregar validaciones
+//agregaria una base de datos para poder filtar datos de id de manera mas facil (ya que keycloack no muestra los id de los grupos si no haces una pegada a la api)

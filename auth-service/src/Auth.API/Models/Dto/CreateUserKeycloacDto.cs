@@ -23,8 +23,11 @@ namespace Auth.API.Models.Dto
         [FromForm(Name = "enabled")]
         public bool? Enabled { get; set; }
 
-        [FromForm(Name = "groups")]
-        public List<string> GroupIds { get; set; } = new();
+        [FromForm(Name = "groupId")]
+        public string? GroupId { get; set; }
+
+        [FromForm(Name = "roleName")]
+        public string? RoleName { get; set; }
 
         [FromForm(Name = "credentials")]
         public CredentialDto CredentialDto { get; set; }

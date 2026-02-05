@@ -71,13 +71,6 @@ namespace Auth.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("create-sub-groups-keycloak")]
-        public async Task<ActionResult> CreateSubGroup([FromBody] CreateSubGroupDto dto)
-        {
-            var result = await _keyclaockService.CreateSubGroupAsync(dto);
-            return Ok(result);
-        }
-
         [HttpPost("create-realms-keycloak")]
         public async Task<ActionResult> CreateRealm([FromBody] CreateRealmDto dto)
         {
@@ -96,6 +89,16 @@ namespace Auth.API.Controllers
         public async Task<ActionResult> AddUserToGroupAsync([FromQuery] string realm, [FromQuery] string userId, [FromQuery] string groupId)
         {
             var result = await _keyclaockService.AddUserToGroupAsync(realm, userId, groupId);
+            return Ok(result);
+        }
+
+        [HttpPost("assign-role-to-group-keycloak")]
+        public async Task<ActionResult> AssignRoleToGroup(
+        [FromQuery] string realm,
+        [FromQuery] string groupId,
+        [FromQuery] string roleName)
+        {
+            var result = await _keyclaockService.AssignRoleToGroupAsync(realm, groupId, roleName);
             return Ok(result);
         }
 
