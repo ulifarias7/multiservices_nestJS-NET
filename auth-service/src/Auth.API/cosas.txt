@@ -1,0 +1,43 @@
+Funcionalidad que te falta
+1. Roles (está incompleto)
+
+GetRoles por realm
+GetRoleById con sus permisos
+UpdateRole / DeleteRole
+AssignRoleToUser (directo, no solo vía grupo)
+RemoveRoleFromUser / RemoveRoleFromGroup
+
+2. Gestión de usuarios más completa
+
+GetUserGroups - ver grupos de un usuario
+GetUserRoles - ver roles de un usuario
+RemoveUserFromGroup
+EnableUser / DisableUser (toggle rápido)
+SendVerificationEmail / SendPasswordResetEmail
+Bulk operations: crear/actualizar/eliminar múltiples usuarios
+
+3. Sessions y seguridad
+
+GetUserSessions - sesiones activas
+LogoutUser / LogoutAllSessions
+GetLoginEvents / GetAdminEvents (audit logs)
+
+4. Clientes (Clients)
+
+CRUD completo de clients (apps que usan Keycloak)
+Gestión de client scopes
+Secrets rotation
+
+5. Identity Providers
+
+Listar/configurar IDPs (Google, Facebook, etc.)
+
+6. Export realms
+
+
+///////////////////
+buenas practicas que se pueden agregar
+-Agregar FluentValidation
+-Terminar los Mapeos 
+-Paginacion en busquedas 
+-Reponses en el wrapper de manera mas consistente
