@@ -1,20 +1,20 @@
-Funcionalidad que te falta
-1. Roles (est� incompleto)
+﻿Funcionalidad que te falta
+1. Roles (está incompleto)
 
 GetRoles por realm
 GetRoleById con sus permisos
 UpdateRole / DeleteRole
-AssignRoleToUser (directo, no solo v�a grupo)
+AssignRoleToUser (directo, no solo vía grupo)
 RemoveRoleFromUser / RemoveRoleFromGroup
 
-2. Gesti�n de usuarios m�s completa
+2. Gestión de usuarios más completa
 
 GetUserGroups - ver grupos de un usuario
 GetUserRoles - ver roles de un usuario
 RemoveUserFromGroup
-EnableUser / DisableUser (toggle r�pido)
+EnableUser / DisableUser (toggle rápido)
 SendVerificationEmail / SendPasswordResetEmail
-Bulk operations: crear/actualizar/eliminar m�ltiples usuarios
+Bulk operations: crear/actualizar/eliminar múltiples usuarios
 
 3. Sessions y seguridad
 
@@ -25,7 +25,7 @@ GetLoginEvents / GetAdminEvents (audit logs)
 4. Clientes (Clients)
 
 CRUD completo de clients (apps que usan Keycloak)
-Gesti�n de client scopes
+Gestión de client scopes
 Secrets rotation
 
 5. Identity Providers
@@ -41,3 +41,17 @@ buenas practicas que se pueden agregar
 -Terminar los Mapeos 
 -Paginacion en busquedas 
 -Reponses en el wrapper de manera mas consistente
+-Segurizarla
+
+Checklist de seguridad
+❌Item                            Prioridad 
+❌Autenticación JWT               CRÍTICO
+❌Autorización por roles          CRÍTICO
+❌Secrets en variables de entorno CRÍTICO  
+❌CORS restrictivo                CRÍTICO
+❌Input validation                ALTO
+❌Rate limiting                   ALTO
+❌HTTPS enforcement               MEDIO
+❌Sanitizar logs                  MEDIO
+❌Error handling seguro           MEDIO
+⚠️Middleware de excepciones       PARCIAL
