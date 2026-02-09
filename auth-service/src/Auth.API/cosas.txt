@@ -34,8 +34,8 @@ Listar/configurar IDPs (Google, Facebook, etc.)
 
 6. Export realms
 
-
 ///////////////////
+
 buenas practicas que se pueden agregar
 -Agregar FluentValidation
 -Terminar los Mapeos 
@@ -44,6 +44,7 @@ buenas practicas que se pueden agregar
 -Segurizarla
 
 Checklist de seguridad
+
 ❌Item                            Prioridad 
 ❌Autenticación JWT               CRÍTICO
 ❌Autorización por roles          CRÍTICO

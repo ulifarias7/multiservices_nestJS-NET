@@ -10,6 +10,7 @@ namespace Document.API.Services
         Task<ResponsesObjectJson> CreateObjectAsync(CreateObjectDto model);
         Task<ResponsesObjectJson> GeBucketAsync(string bucket);
         Task<ResponsesObjectJson> GetObjectAsync(string bucket, string objectName);
-        Task<(byte[] fileBytes, string contentType, string fileName)> DownloadObject(string bucket,string objectName);
+        Task<(byte[] fileBytes, string contentType, string fileName)> DownloadObject(string bucket, string objectName);
+        Task<ResponsesObjectJson> GetRegisterByIdAsync(int id);
     }
 }

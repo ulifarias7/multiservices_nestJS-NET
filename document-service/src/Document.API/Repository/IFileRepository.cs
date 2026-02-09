@@ -1,4 +1,5 @@
-﻿using Document.API.Database.Entity;
+﻿using Document.API.Common.filters;
+using Document.API.Database.Entity;
 using Document.API.Models.Dtos;
 
 namespace Document.API.Repository
@@ -8,5 +9,6 @@ namespace Document.API.Repository
         Task<bool> AddDocument(DocumentEntity document);
         Task<bool> AddBucket(BucketEntity bucket);
         Task<BucketEntity?> GetBucketByName(string bucketName);
+        Task<List<T>> FindAllByFilters<T>(DocumentFilterModel filter);
     }
 }

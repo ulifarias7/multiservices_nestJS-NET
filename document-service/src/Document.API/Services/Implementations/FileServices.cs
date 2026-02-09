@@ -1,6 +1,9 @@
 ﻿
+using Document.API.Common.Exceptions;
+using Document.API.Common.filters;
 using Document.API.Database.Entity;
 using Document.API.Messaging;
+using Document.API.Models.Dtos;
 using Document.API.Models.Events;
 using Document.API.Models.Request;
 using Document.API.Models.Responses;
@@ -182,6 +185,30 @@ namespace Document.API.Services.Implementations
             var buckets = await _minio.ListBucketsAsync();
             var targetBucket = buckets.Buckets.FirstOrDefault(b => b.Name == bucket);
             return targetBucket?.CreationDateDateTime;
+        }
+
+        public async Task<ResponsesObjectJson> GetRegisterByIdAsync(int id)
+        {
+            var filter = new DocumentFilterModel
+            {
+                IdList = new List<int> { id },
+                Page = 1,
+                PageSize = 1
+            };
+
+            var result = await _fileRepository.FindAllByFilters<DocumentDto>(filter);
+
+            if (!result.Any())
+            {
+                throw new BadRequestException("Documento no encontrado");
+            }
+
+            return new ResponsesObjectJson()
+            {
+                Code = 200,
+                Message = "Documento encontrado",
+                Response = result.First()
+            };
         }
     }
 }

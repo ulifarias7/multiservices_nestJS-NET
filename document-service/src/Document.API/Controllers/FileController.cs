@@ -50,5 +50,12 @@ namespace Document.API.Controllers
             var (fileBytes, contentType, fileName) = await _fileServices.DownloadObject(bucket, objectName);
             return File(fileBytes, contentType, fileName);
         }
+
+        [HttpGet("get-register-by-id")]
+        public async Task<ActionResult<ResponsesObjectJson>> GetRegisterById([FromQuery] int id)
+        {
+            var result = await _fileServices.GetRegisterByIdAsync(id);
+            return Ok(result);
+        }
     }
 }
